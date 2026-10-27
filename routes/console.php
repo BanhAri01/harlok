@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Commodity;
+use App\Models\DailyPrice;
 use App\Models\Farmer;
 use App\Models\StockReport;
 use App\Models\User;
@@ -9,6 +9,7 @@ use App\Services\PriceBoard;
 use App\Support\Rupiah;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Str;
 
 Artisan::command('lapor:ringkasan-pagi', function (PriceBoard $prices, Messenger $messenger) {
     $sent = 0;
@@ -53,7 +54,7 @@ Artisan::command('lapor:rapikan', function () {
 })->purpose('Tutup laporan yang kedaluwarsa');
 
 Artisan::command('lapor:admin {email} {name=Admin}', function (string $email, string $name) {
-    $password = Illuminate\Support\Str::password(14, symbols: false);
+    $password = Str::password(14, symbols: false);
 
     User::query()->updateOrCreate(['email' => $email], [
         'name' => $name,
@@ -69,7 +70,7 @@ Artisan::command('lapor:hapus-contoh', function () {
     $farmers = Farmer::query()->where('channel', 'contoh')->pluck('id');
     StockReport::query()->whereIn('farmer_id', $farmers)->delete();
     Farmer::query()->whereIn('id', $farmers)->delete();
-    App\Models\DailyPrice::query()->delete();
+    DailyPrice::query()->delete();
 
     $board = app(PriceBoard::class);
     StockReport::query()->whereIn('status', StockReport::PRICED)->whereNotNull('confirmed_at')

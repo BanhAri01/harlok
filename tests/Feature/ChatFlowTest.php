@@ -4,6 +4,7 @@ use App\Models\Conversation;
 use App\Models\DailyPrice;
 use App\Models\Farmer;
 use App\Models\StockReport;
+use App\Services\PriceBoard;
 
 it('mendaftarkan peternak baru lewat tiga balasan', function () {
     $phone = '6281299990001';
@@ -37,7 +38,7 @@ it('meminta konfirmasi sebelum menyimpan laporan lalu menghitung harga rata-rata
 
 it('membandingkan harga laporan dengan rata-rata wilayah', function () {
     stock(farmer(), 27000);
-    app(App\Services\PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
+    app(PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
 
     $farmer = farmer();
     $reply = chat($farmer->phone, 'telur 1 ton 25.650', 'ya')[0];
@@ -57,7 +58,7 @@ it('tidak menghitung harga dari peternak yang belum terverifikasi', function () 
 
 it('menahan laporan yang harganya jauh dari pasar untuk dicek koordinator', function () {
     stock(farmer(), 26000);
-    app(App\Services\PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
+    app(PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
 
     $farmer = farmer();
     $reply = chat($farmer->phone, 'telur 1 ton 40rb', 'ya')[0];
@@ -97,7 +98,7 @@ it('laporan baru menutup stok lama dengan komoditas yang sama', function () {
 it('menjawab perintah harga, stok, habis, dan langganan', function () {
     $farmer = farmer();
     stock($farmer, 26000);
-    app(App\Services\PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
+    app(PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
 
     expect(chat($farmer->phone, 'harga')[0])->toContain('Tabanan: Rp26.000');
     expect(chat($farmer->phone, 'stok')[0])->toContain('1.000 kg');

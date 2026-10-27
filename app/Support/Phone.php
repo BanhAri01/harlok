@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 class Phone
 {
     public const SIMULATOR_PREFIX = 'sim';
+
     public const SAMPLE_PREFIX = 'cth';
 
     public static function channel(string $phone): string

@@ -13,8 +13,7 @@ final class ParsedReport
         public ?int $pricePerKg = null,
         public ?Region $region = null,
         public string $source = 'pattern',
-    ) {
-    }
+    ) {}
 
     public function isComplete(): bool
     {

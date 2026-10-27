@@ -16,9 +16,7 @@ class OfferService
 {
     public const STATE_REPLY = 'offer_reply';
 
-    public function __construct(private PriceBoard $prices, private Messenger $messenger)
-    {
-    }
+    public function __construct(private PriceBoard $prices, private Messenger $messenger) {}
 
     public function create(User $buyer, StockReport $report, int $pricePerKg, float $quantityKg): Offer
     {
@@ -90,7 +88,7 @@ class OfferService
         $average = Rupiah::format($offer->market_avg);
 
         if ($percent <= -(float) config('lapor.market.warn_below_percent')) {
-            return "⚠️ Tawaran ini *".Rupiah::percent($percent)." DI BAWAH* rata-rata {$region} ({$average}). Pertimbangkan dulu.";
+            return '⚠️ Tawaran ini *'.Rupiah::percent($percent)." DI BAWAH* rata-rata {$region} ({$average}). Pertimbangkan dulu.";
         }
 
         if ($percent >= 0) {

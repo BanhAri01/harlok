@@ -10,9 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Offer extends Model
 {
     public const SENT = 'sent';
+
     public const ACCEPTED = 'accepted';
+
     public const REJECTED = 'rejected';
+
     public const COUNTERED = 'countered';
+
     public const CANCELLED = 'cancelled';
 
     public const OPEN = [self::SENT, self::COUNTERED];

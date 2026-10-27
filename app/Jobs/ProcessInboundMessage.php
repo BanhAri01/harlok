@@ -13,9 +13,7 @@ class ProcessInboundMessage implements ShouldQueue
 
     public int $tries = 1;
 
-    public function __construct(public int $messageId)
-    {
-    }
+    public function __construct(public int $messageId) {}
 
     public function handle(InboundProcessor $processor): void
     {

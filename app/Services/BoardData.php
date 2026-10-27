@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 class BoardData
 {
-    public function __construct(private PriceBoard $prices)
-    {
-    }
+    public function __construct(private PriceBoard $prices) {}
 
     public function commodity(?string $slug): Commodity
     {

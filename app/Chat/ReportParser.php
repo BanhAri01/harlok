@@ -9,7 +9,9 @@ use Illuminate\Support\Str;
 class ReportParser
 {
     public const WEIGHT_UNITS = ['ton' => 1000, 'kwintal' => 100, 'kw' => 100, 'kilogram' => 1, 'kilo' => 1, 'kg' => 1];
+
     public const PACK_UNITS = ['peti', 'tray', 'krat', 'ikat', 'ekor', 'karung'];
+
     public const REGION_VARIANTS = [
         'gunungkidul' => ['gunung kidul', 'wonosari'],
         'kulon-progo' => ['kulonprogo', 'wates'],

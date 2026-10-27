@@ -1,0 +1,45 @@
+name: Tes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, pdo_sqlite, sqlite3
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Pasang dependensi
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          npm ci
+
+      - name: Bangun aset
+        run: npm run build
+
+      - name: Siapkan lingkungan
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Cek gaya kode
+        run: vendor/bin/pint --test
+
+      - name: Jalankan tes
+        run: php vendor/bin/pest

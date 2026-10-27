@@ -15,11 +15,17 @@ class StockReport extends Model
     use HasFactory;
 
     public const PENDING = 'pending';
+
     public const CONFIRMED = 'confirmed';
+
     public const FLAGGED = 'flagged';
+
     public const SOLD = 'sold';
+
     public const CLOSED = 'closed';
+
     public const CANCELLED = 'cancelled';
+
     public const REJECTED = 'rejected';
 
     public const PRICED = [self::CONFIRMED, self::SOLD, self::CLOSED];

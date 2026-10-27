@@ -12,9 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReportService
 {
-    public function __construct(private PriceBoard $prices, private Messenger $messenger)
-    {
-    }
+    public function __construct(private PriceBoard $prices, private Messenger $messenger) {}
 
     public function createPending(Farmer $farmer, ParsedReport $parsed, string $rawText): StockReport
     {

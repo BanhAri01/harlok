@@ -20,7 +20,9 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     public const ADMIN = 'admin';
+
     public const BUYER = 'buyer';
+
     public const PARTNER = 'partner';
 
     public const ROLES = [self::ADMIN, self::BUYER, self::PARTNER];

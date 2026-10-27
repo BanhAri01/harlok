@@ -12,9 +12,7 @@ use Throwable;
 
 class AiReportParser
 {
-    public function __construct(private ReportParser $units)
-    {
-    }
+    public function __construct(private ReportParser $units) {}
 
     public function available(): bool
     {
@@ -75,9 +73,9 @@ class AiReportParser
         $commodities = Commodity::active()->map(fn (Commodity $commodity) => $commodity->slug.' ('.implode(', ', $commodity->aliases).')')->implode('; ');
         $regions = Region::ordered()->pluck('slug')->implode(', ');
 
-        $system = "Kamu membaca pesan WhatsApp peternak/petani Indonesia yang melaporkan stok dan harga jual. "
-            ."Ambil hanya yang benar-benar tertulis; jangan menebak. Kosongkan (null) bila tidak ada. "
-            ."Harga dalam rupiah penuh (26rb = 26000, 1,2jt = 1200000). "
+        $system = 'Kamu membaca pesan WhatsApp peternak/petani Indonesia yang melaporkan stok dan harga jual. '
+            .'Ambil hanya yang benar-benar tertulis; jangan menebak. Kosongkan (null) bila tidak ada. '
+            .'Harga dalam rupiah penuh (26rb = 26000, 1,2jt = 1200000). '
             ."Komoditas yang dikenal: {$commodities}. Wilayah (slug): {$regions}. "
             .'Satuan jumlah: '.implode(', ', $units).'. Satuan harga: kg, ton, peti, tray, krat, ikat, ekor.';
 

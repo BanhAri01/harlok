@@ -10,9 +10,7 @@ use Throwable;
 
 class InboundProcessor
 {
-    public function __construct(private ChatBot $bot, private Messenger $messenger)
-    {
-    }
+    public function __construct(private ChatBot $bot, private Messenger $messenger) {}
 
     public function process(InboundMessage $message): void
     {

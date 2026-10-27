@@ -1,0 +1,198 @@
+openapi: 3.1.0
+info:
+  title: Juru Harga — API Data Harga
+  version: 1.0.0
+  description: |
+    Harga komoditas pertanian dan peternakan per wilayah, dihitung dari laporan peternak terverifikasi lewat WhatsApp.
+    Semua harga dalam rupiah per kilogram. API hanya mengeluarkan angka gabungan; nama dan nomor peternak tidak pernah dibagikan.
+    Token diberikan koordinator (izin `prices:read`, berlaku 6 bulan). Batas 60 permintaan per menit per token.
+servers:
+  - url: https://juruharga.hermesworkss.com
+  - url: http://127.0.0.1:8000
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/komoditas:
+    get:
+      summary: Daftar komoditas
+      responses:
+        '200':
+          description: Daftar kode komoditas.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug: { type: string, example: telur }
+                        nama: { type: string, example: Telur }
+                        satuan_harga: { type: string, example: kg }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /api/v1/wilayah:
+    get:
+      summary: Daftar wilayah
+      responses:
+        '200':
+          description: Daftar wilayah beserta koordinat pusatnya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug: { type: string, example: tabanan }
+                        nama: { type: string, example: Tabanan }
+                        provinsi: { type: string, example: Bali }
+                        lat: { type: number, example: -8.54 }
+                        lng: { type: number, example: 115.12 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /api/v1/harga:
+    get:
+      summary: Harga terbaru per wilayah
+      parameters:
+        - { $ref: '#/components/parameters/Komoditas' }
+        - name: wilayah
+          in: query
+          required: false
+          schema: { type: string, example: tabanan }
+          description: Kosongkan untuk semua wilayah.
+      responses:
+        '200':
+          description: Harga terbaru (7 hari terakhir) per wilayah.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  komoditas: { type: string, example: telur }
+                  satuan: { type: string, example: rupiah/kg }
+                  sumber: { type: string }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        wilayah: { type: string, example: tabanan }
+                        nama_wilayah: { type: string, example: Tabanan }
+                        tanggal: { type: string, format: date }
+                        rata_rata: { type: integer, example: 26400 }
+                        terendah: { type: integer, example: 25500 }
+                        tertinggi: { type: integer, example: 27200 }
+                        jumlah_laporan: { type: integer, example: 18 }
+                        perubahan: { type: [integer, 'null'], example: 150, description: Selisih rata-rata dengan hari laporan sebelumnya. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /api/v1/harga/riwayat:
+    get:
+      summary: Riwayat harga harian satu wilayah
+      parameters:
+        - { $ref: '#/components/parameters/Komoditas' }
+        - name: wilayah
+          in: query
+          required: true
+          schema: { type: string, example: tabanan }
+        - name: hari
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 90, default: 30 }
+      responses:
+        '200':
+          description: Riwayat harian.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  komoditas: { type: string }
+                  wilayah: { type: string }
+                  satuan: { type: string, example: rupiah/kg }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tanggal: { type: string, format: date }
+                        rata_rata: { type: integer }
+                        median: { type: integer }
+                        terendah: { type: integer }
+                        tertinggi: { type: integer }
+                        jumlah_laporan: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /data/harga.csv:
+    get:
+      summary: Data terbuka harga harian (CSV, tanpa token)
+      security: []
+      parameters:
+        - name: komoditas
+          in: query
+          required: false
+          schema: { type: string, example: telur }
+        - name: hari
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 366, default: 90 }
+      responses:
+        '200':
+          description: 'Kolom: tanggal, komoditas, wilayah, provinsi, rata_rata, median, terendah, tertinggi, jumlah_laporan, satuan.'
+          content:
+            text/csv:
+              schema: { type: string }
+        '404': { description: Komoditas tidak dikenal. }
+  /widget/harga:
+    get:
+      summary: Widget HTML untuk disematkan dengan iframe (tanpa token)
+      security: []
+      parameters:
+        - name: komoditas
+          in: query
+          schema: { type: string, example: telur }
+        - name: wilayah
+          in: query
+          schema: { type: string, example: tabanan }
+        - name: tema
+          in: query
+          schema: { type: string, enum: [gelap] }
+      responses:
+        '200':
+          description: Halaman HTML ringan yang boleh disematkan di situs mana pun.
+          content:
+            text/html:
+              schema: { type: string }
+        '404': { description: Komoditas atau wilayah tidak dikenal. }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    Komoditas:
+      name: komoditas
+      in: query
+      required: true
+      schema: { type: string, enum: [telur, ayam-broiler, cabai-rawit, beras, jagung] }
+  responses:
+    Unauthorized:
+      description: Token tidak ada atau tidak valid.
+    Forbidden:
+      description: Token tidak memiliki izin prices:read atau bukan milik mitra.
+    ValidationError:
+      description: Parameter tidak valid.
+    TooManyRequests:
+      description: Melebihi 60 permintaan per menit.

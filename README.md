@@ -67,7 +67,7 @@ Pembacaan pesan memakai dua lapis:
 ### Untuk publik dan mitra
 - **Papan harga** publik yang memperbarui diri tiap 12 detik, dilengkapi grafik 14 hari.
 - **Simulator chat** (`/coba`): mencoba bot yang sama tanpa WhatsApp. Pesannya tidak pernah terkirim ke WhatsApp.
-- **API harga** ber-token (lihat bagian API).
+- **API harga** ber-token, **widget harga** yang bisa disematkan di situs koperasi/desa (`/widget/harga`), dan **data terbuka CSV** (`/data/harga.csv`). Spesifikasi lengkap: `docs/openapi.yaml`.
 
 ## Arsitektur
 
@@ -190,7 +190,7 @@ API hanya mengeluarkan **angka gabungan**. Nama dan nomor peternak tidak pernah 
 php vendor/bin/pest
 ```
 
-45 tes otomatis (158 asersi), meliputi: pembacaan 9 variasi penulisan pesan, pendaftaran, konfirmasi laporan, penahanan harga janggal, peternak belum terverifikasi tidak dihitung, alur tawaran (terima, tolak, tawar balik, pengepul lain tidak bisa mengubah), batas akun demo, keamanan webhook (rahasia, grup, ganda, banjir pesan), hak akses panel, kebocoran data di papan publik dan API, serta validasi API.
+51 tes otomatis (180 asersi, juga dijalankan GitHub Actions setiap push), meliputi: pembacaan 9 variasi penulisan pesan, pendaftaran, konfirmasi laporan, penahanan harga janggal, peternak belum terverifikasi tidak dihitung, alur tawaran (terima, tolak, tawar balik, pengepul lain tidak bisa mengubah), batas akun demo, keamanan webhook (rahasia, grup, ganda, banjir pesan), hak akses panel, kebocoran data di papan publik dan API, validasi API, serta widget dan data terbuka.
 
 ## Struktur kode
 
