@@ -283,5 +283,35 @@ Alpine.data('simulator', ({ sendUrl, pollUrl, resetUrl }) => ({
     },
 }));
 
+Alpine.data('widgetMaker', ({ baseUrl, commodity }) => ({
+    commodity,
+    region: '',
+    theme: '',
+    copied: false,
+
+    get src() {
+        const query = new URLSearchParams({ komoditas: this.commodity });
+        if (this.region) query.set('wilayah', this.region);
+        if (this.theme) query.set('tema', this.theme);
+        return `${baseUrl}?${query}`;
+    },
+
+    get height() {
+        return this.region ? 130 : 420;
+    },
+
+    get code() {
+        return `<iframe src="${this.src}" title="Harga pasar Juru Harga" width="100%" height="${this.height}" style="border:0" loading="lazy"></iframe>`;
+    },
+
+    async copy() {
+        try {
+            await navigator.clipboard.writeText(this.code);
+            this.copied = true;
+            setTimeout(() => (this.copied = false), 2000);
+        } catch {}
+    },
+}));
+
 window.Alpine = Alpine;
 Alpine.start();

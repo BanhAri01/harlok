@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Commodity;
+use App\Models\Region;
 use App\Services\BoardData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,6 +28,6 @@ class BoardController extends Controller
 
     public function apiDocs(): View
     {
-        return view('api-docs', ['commodities' => Commodity::active()]);
+        return view('api-docs', ['commodities' => Commodity::active(), 'regions' => Region::ordered()]);
     }
 }

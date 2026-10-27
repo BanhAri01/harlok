@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\OpenDataController;
 use App\Http\Controllers\SimulatorController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [BoardController::class, 'index'])->name('home');
 Route::get('/papan/data', [BoardController::class, 'data'])->middleware('throttle:60,1')->name('board.data');
 Route::get('/dokumentasi-api', [BoardController::class, 'apiDocs'])->name('api.docs');
+Route::get('/widget/harga', [OpenDataController::class, 'widget'])->middleware('throttle:120,1')->name('widget.prices');
+Route::get('/data/harga.csv', [OpenDataController::class, 'csv'])->middleware('throttle:20,1')->name('open-data.csv');
 
 Route::post('/webhook/wa/{secret}', WhatsAppWebhookController::class)->middleware('throttle:240,1')->name('webhooks.wa');
 

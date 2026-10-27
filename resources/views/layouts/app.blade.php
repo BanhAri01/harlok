@@ -25,7 +25,7 @@
                 @if (config('lapor.simulator.enabled'))
                     <a href="{{ route('simulator.show') }}" @class(['rounded-md px-3 py-1.5 hover:bg-white/10 hover:text-kapur', 'bg-white/10 text-kapur' => request()->routeIs('simulator.*')])>Coba Chat</a>
                 @endif
-                <a href="{{ route('api.docs') }}" @class(['rounded-md px-3 py-1.5 hover:bg-white/10 hover:text-kapur', 'bg-white/10 text-kapur' => request()->routeIs('api.docs')])>API Data</a>
+                <a href="{{ route('api.docs') }}" @class(['rounded-md px-3 py-1.5 hover:bg-white/10 hover:text-kapur', 'bg-white/10 text-kapur' => request()->routeIs('api.docs')])>Data & API</a>
                 @auth
                     <a href="{{ route('buyer.dashboard') }}" @class(['rounded-md px-3 py-1.5 hover:bg-white/10 hover:text-kapur', 'bg-white/10 text-kapur' => request()->routeIs('buyer.dashboard')])>Cari Stok</a>
                     <a href="{{ route('buyer.offers') }}" @class(['rounded-md px-3 py-1.5 hover:bg-white/10 hover:text-kapur', 'bg-white/10 text-kapur' => request()->routeIs('buyer.offers')])>Tawaran Saya</a>
