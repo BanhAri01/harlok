@@ -98,7 +98,7 @@ class SampleDataSeeder extends Seeder
         User::query()->updateOrCreate(['email' => 'pengepul@contoh.id'], [
             'name' => 'Pengepul Demo',
             'business_name' => 'UD Contoh Makmur (demo)',
-            'password' => Str::password(16),
+            'password' => env('LAPOR_DEMO_PASSWORD') ?: Str::password(16),
             'role' => User::BUYER,
             'region_id' => $regions->firstWhere('slug', 'tabanan')?->id,
             'is_active' => true,

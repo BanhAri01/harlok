@@ -20,12 +20,17 @@ use Illuminate\Validation\ValidationException;
 class ChatBot
 {
     public const REG_NAME = 'reg_name';
+
     public const REG_REGION = 'reg_region';
+
     public const REG_COMMODITY = 'reg_commodity';
+
     public const CONFIRM_REPORT = 'confirm_report';
+
     public const COUNTER_PRICE = 'counter_price';
 
     private const YES = ['ya', 'y', 'iya', 'yes', 'ok', 'oke', 'benar', 'betul', 'setuju', 'simpan'];
+
     private const NO = ['ubah', 'tidak', 'salah', 'no', 'bukan', 'ganti'];
 
     public function __construct(
@@ -34,8 +39,7 @@ class ChatBot
         private ReportService $reports,
         private OfferService $offers,
         private PriceBoard $prices,
-    ) {
-    }
+    ) {}
 
     public function handle(string $phone, string $text): array
     {
@@ -348,6 +352,12 @@ class ChatBot
         if ($rows->isEmpty()) {
             return "Belum ada laporan harga {$commodity->name} minggu ini. Jadilah yang pertama melapor 👍";
         }
+
+        $home = $farmer->region;
+        $rows = $rows->sortBy(fn (array $row) => [
+            $row['region']?->id === $home?->id ? 0 : ($row['region']?->province === $home?->province ? 1 : 2),
+            $row['region']?->sort,
+        ])->values();
 
         $lines = $rows->take(10)->map(function (array $row) {
             $arrow = match (true) {
