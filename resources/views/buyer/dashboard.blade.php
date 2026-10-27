@@ -23,7 +23,7 @@
     @endif
 
     <div class="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div class="overflow-hidden rounded-2xl border border-garis bg-white">
+        <div class="overflow-hidden rounded-2xl border border-garis bg-white lg:sticky lg:top-4 lg:self-start">
             <div class="flex gap-1 border-b border-garis p-2 text-sm font-semibold">
                 <button type="button" @click="goTo('bali')" :class="area === 'bali' ? 'bg-papan text-kapur' : 'text-tinta/70'" class="rounded-md px-3 py-1">Bali</button>
                 <button type="button" @click="goTo('diy')" :class="area === 'diy' ? 'bg-papan text-kapur' : 'text-tinta/70'" class="rounded-md px-3 py-1">DI Yogyakarta</button>
