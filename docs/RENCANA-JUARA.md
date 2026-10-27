@@ -47,7 +47,7 @@ Dibuat 28 Okt 2026 dini hari. Pembagian kerja: **Ari** (pemilik, wajah tim, data
 
 ### 31 Okt – 5 Nov (menunggu pengumuman)
 - Ari: terus kumpulkan laporan nyata (target ≥10 peternak, ≥50 laporan). Ini bahan kuat untuk video dan final.
-- Claude: fitur lanjutan bila diputuskan Ari (pesan suara, kartu harga), CI, rapikan kode.
+- Claude: fitur lanjutan (kartu harga), CI, rapikan kode. Pesan suara diputuskan Ari: tidak dibuat.
 
 ### Semifinal (5–15 Nov)
 - 6–10 Nov: syuting (kandang, chat WA, papan harga, pengepul menawar), sunting 2–4 menit. Unggah GDrive publik **paling lambat 12 Nov** (target 10 Nov).
@@ -69,7 +69,6 @@ Dibuat 28 Okt 2026 dini hari. Pembagian kerja: **Ari** (pemilik, wajah tim, data
 | C4 | Claude | Rapikan tampilan HP + audit aksesibilitas + tangkapan layar proposal | UI/UX |
 | C5 | Claude | `docs/UJI-PENGGUNA.md`: skenario tugas, lembar SUS, cara hitung, formulir izin | Kebutuhan pengguna |
 | C6 | Claude | Bank 40 pertanyaan juri + jawaban, kerangka PPT & naskah presentasi | Final |
-| C7 | Claude (perlu keputusan Ari) | **Pesan suara → teks** dengan AI (peternak cukup bicara). Butuh layanan ucapan-ke-teks berbayar | Inovasi (besar) |
 | C8 | Claude (opsional) | Kartu harga harian berbentuk gambar untuk diteruskan ke status/grup WA | Kreativitas, penyebaran |
 | G1 | Gemini | Riset pesaing + data latar belakang bersumber resmi | Inovasi, Kebutuhan |
 | G2 | Gemini | Diagram: arsitektur, user flow 4 peran, ERD (Mermaid/draw.io) | Dokumentasi |
