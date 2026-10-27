@@ -107,12 +107,12 @@ Komponen:
 1. Mengirim "halo" ke nomor Juru Harga, menjawab nama, memilih nomor Tabanan dan nomor Telur dari daftar.
 2. Pagi hari mengirim "telur 2 ton 26rb". Bot membalas ringkasan 2.000 kg × Rp26.000. Ia membalas YA.
 3. Bot membalas: rata-rata Tabanan Rp26.400, harga Anda Rp400 di bawah rata-rata.
-4. Siang hari masuk tawaran Rp25.000 dari UD Sumber Telur dengan tanda ⚠️ (−5%). Ia membalas 3 lalu 26000.
+4. Siang hari masuk tawaran Rp23.000 dari UD Sumber Telur dengan tanda ⚠️ (13% di bawah rata-rata; peringatan muncul bila selisihnya 10% atau lebih). Ia membalas 3 lalu 26000.
 5. Pengepul menyetujui; Pak Made menerima nomor pengepul.
 
 **Bu Sri, pengepul di Tabanan**
 1. Masuk ke web, membuka Cari Stok, memilih Telur. Titik hijau/merah di peta menunjukkan stok dan posisinya terhadap harga pasar.
-2. Mengklik stok Pak Made, mengisi harga dan jumlah, melihat keterangan "5% di bawah rata-rata", lalu mengirim tawaran.
+2. Mengklik stok Pak Made, mengisi harga dan jumlah, melihat keterangan "13% di bawah rata-rata", lalu mengirim tawaran.
 3. Di Tawaran Saya muncul status "ditawar balik Rp26.000"; ia mengklik Setujui dan kontak peternak tampil.
 
 **Koordinator kelompok ternak**: memverifikasi peternak baru, meninjau laporan harga Rp40.000 untuk telur yang ditahan otomatis, lalu menolaknya.
