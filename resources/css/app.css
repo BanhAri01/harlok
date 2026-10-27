@@ -1,9 +1,120 @@
 @import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';
+    --font-display: 'Bricolage Grotesque', 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --color-papan: #163326;
+    --color-papan-2: #1F4433;
+    --color-kapur: #E8EFE6;
+    --color-kertas: #F1F4EE;
+    --color-tinta: #14201A;
+    --color-kuning: #F5B700;
+    --color-kuning-muda: #FFE9A3;
+    --color-turun: #B42318;
+    --color-naik: #1E7A46;
+    --color-garis: #D5DED3;
+    --color-wa: #D9FDD3;
+}
+
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    body {
+        @apply bg-kertas text-tinta antialiased;
+    }
+
+    :focus-visible {
+        outline: 3px solid var(--color-kuning);
+        outline-offset: 2px;
+    }
+}
+
+@utility angka {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+}
+
+@utility btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50;
+}
+
+@utility btn-utama {
+    @apply btn bg-kuning text-tinta hover:bg-[#ffc81f];
+}
+
+@utility btn-gelap {
+    @apply btn bg-papan text-kapur hover:bg-papan-2;
+}
+
+@utility btn-garis {
+    @apply btn border border-garis bg-white text-tinta hover:border-tinta;
+}
+
+@layer components {
+    .input {
+        @apply w-full rounded-lg border border-garis bg-white px-3 py-2.5 text-sm text-tinta placeholder:text-tinta/40 focus:border-papan focus:outline-none focus:ring-2 focus:ring-papan/20;
+    }
+
+    .label {
+        @apply mb-1 block text-sm font-semibold text-tinta/80;
+    }
+
+    .panel {
+        @apply rounded-xl border border-garis bg-white;
+    }
+
+    .papan-tulis {
+        background-color: var(--color-papan);
+        background-image:
+            radial-gradient(ellipse at 20% 0%, rgb(255 255 255 / 0.06), transparent 55%),
+            repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 34px);
+        @apply text-kapur;
+    }
+}
+
+.titik-stok {
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+}
+
+.titik-baru::after {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 9999px;
+    border: 3px solid var(--color-kuning);
+    animation: denyut 1.6s ease-out 4;
+}
+
+@keyframes denyut {
+    from { transform: scale(0.4); opacity: 1; }
+    to { transform: scale(1.6); opacity: 0; }
+}
+
+.harga-berubah {
+    animation: sorot 2.4s ease-out;
+}
+
+@keyframes sorot {
+    0% { background-color: rgb(245 183 0 / 0.45); }
+    100% { background-color: transparent; }
+}
+
+.leaflet-container {
+    font-family: var(--font-sans);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .titik-baru::after, .harga-berubah { animation: none; }
 }

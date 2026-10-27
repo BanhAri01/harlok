@@ -32,5 +32,10 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="LAPOR_WA_DRIVER" value="log"/>
+        <env name="LAPOR_WEBHOOK_SECRET" value="rahasia-uji"/>
+        <env name="FONNTE_DEVICE" value=""/>
+        <env name="ANTHROPIC_API_KEY" value=""/>
+        <env name="LAPOR_SIMULATOR" value="true"/>
     </php>
 </phpunit>
