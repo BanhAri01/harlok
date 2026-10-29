@@ -190,7 +190,7 @@ API hanya mengeluarkan **angka gabungan**. Nama dan nomor peternak tidak pernah 
 php vendor/bin/pest
 ```
 
-51 tes otomatis (180 asersi, juga dijalankan GitHub Actions setiap push), meliputi: pembacaan 9 variasi penulisan pesan, pendaftaran, konfirmasi laporan, penahanan harga janggal, peternak belum terverifikasi tidak dihitung, alur tawaran (terima, tolak, tawar balik, pengepul lain tidak bisa mengubah), batas akun demo, keamanan webhook (rahasia, grup, ganda, banjir pesan), hak akses panel, kebocoran data di papan publik dan API, validasi API, serta widget dan data terbuka.
+62 tes otomatis (237 asersi, juga dijalankan GitHub Actions setiap push), meliputi: pembacaan 9 variasi penulisan pesan, pendaftaran, konfirmasi laporan, penahanan harga janggal, peternak belum terverifikasi tidak dihitung, alur tawaran (terima, tolak, tawar balik, pengepul lain tidak bisa mengubah), batas akun demo, keamanan webhook (rahasia, grup, ganda, banjir pesan), hak akses panel, kebocoran data di papan publik dan API, validasi API, widget dan data terbuka, serta regresi hasil audit keamanan (simulator terisolasi, rata-rata satu laporan per peternak, kuota AI, batas webhook per nomor, pembersihan data simulator).
 
 ## Struktur kode
 

@@ -13,7 +13,7 @@ Tanya jawab bernilai **40%** di final. Pelajari jawaban di bawah sampai bisa diu
 | 5:15 | 5. Ekosistem terhubung | Diagram arsitektur: WhatsApp ↔ web pengepul ↔ panel koordinator ↔ API/widget/CSV untuk dinas & koperasi. |
 | 6:15 | 6. Data dapat dipercaya | Verifikasi peternak, rentang harga wajar, tahan >30%, konfirmasi YA, jejak audit. |
 | 7:00 | 7. Hasil uji pengguna | [ISI: tingkat keberhasilan, SUS, 2 kutipan, perbaikan yang dilakukan, jumlah laporan nyata]. |
-| 8:00 | 8. Teknis & keamanan | Laravel 13, 51+ tes otomatis + CI, webhook rahasia, peran, Sanctum, rate limit, privasi. |
+| 8:00 | 8. Teknis & keamanan | Laravel 13, 62 tes otomatis + CI, audit keamanan, webhook rahasia, peran, Sanctum, rate limit, privasi. |
 | 8:45 | 9. Rencana ke depan | Perluasan wilayah lewat kelompok ternak/koperasi, WhatsApp Cloud API resmi, model keberlanjutan. |
 | 9:30 | 10. Penutup | Kembali ke bapak: "[ISI: kutipan bapak setelah memakai]". Tampilkan QR nomor WA. |
 
@@ -50,19 +50,23 @@ Latihan: rekam diri sendiri minimal 5 kali; potong bagian yang lewat waktu. Sela
 12. **Bagaimana mencegah satu stok terjual ke dua pengepul?**
     Penerimaan tawaran berjalan dalam transaksi database dengan penguncian baris (`lockForUpdate`). Saat satu tawaran diterima, stok ditandai terjual dan tawaran lain otomatis ditolak.
 13. **Bagaimana keamanan webhook WhatsApp?**
-    Alamat webhook memuat kode rahasia yang dicek dengan `hash_equals`, nomor device dicocokkan, pesan grup diabaikan, pesan ganda ditolak lewat ID unik, dan ada batas 12 pesan per menit per nomor.
+    Alamat webhook memuat kode rahasia yang dicek dengan `hash_equals`, nomor device dicocokkan, pesan grup diabaikan, pesan ganda ditolak lewat ID unik, ada batas 12 pesan per menit per nomor, dan batas 30 permintaan per menit per nomor pengirim di tingkat rute.
 14. **Bagaimana kalau dua pesan dari nomor yang sama datang bersamaan?**
     Pemrosesan dikunci per nomor (cache lock), jadi status percakapan tidak tumpang tindih.
 15. **Bagaimana kalau server lambat? Fonnte menunggu?**
     Webhook langsung menjawab, pesan diproses setelah respons dikirim.
 16. **Bagaimana Anda menguji?**
-    51+ tes otomatis (Pest) untuk pembacaan pesan, alur daftar/lapor/tawar, keamanan webhook, hak akses, kebocoran data, API, widget; dijalankan otomatis di GitHub Actions setiap push. Ditambah uji pengguna [ISI].
+    62 tes otomatis (Pest) untuk pembacaan pesan, alur daftar/lapor/tawar, keamanan webhook, hak akses, kebocoran data, API, widget; dijalankan otomatis di GitHub Actions setiap push. Ditambah uji pengguna [ISI].
 17. **Kenapa Laravel?**
     Matang untuk aplikasi data dan peran (autentikasi, validasi, antrean, penjadwal, Sanctum), dan saya sudah memakainya untuk sistem peternakan yang berjalan di produksi.
 18. **Bisa menampung berapa pengguna?**
     Jujur: belum diuji beban besar. Desainnya siap ditingkatkan: rata-rata harian disimpan di tabel tersendiri (bukan dihitung ulang tiap kunjungan), papan memakai cache, dan pemrosesan pesan bisa dipindah ke antrean worker.
 19. **API-nya terbuka untuk siapa?**
     Tiga jalur: widget dan CSV terbuka tanpa token (hanya angka gabungan), API JSON dengan token yang dibuat koordinator, berlaku 6 bulan, bisa dicabut, dan dibatasi 60 permintaan per menit.
+19a. **Apakah sudah diaudit keamanannya?**
+    Ya, audit kode sumber memakai metode *security-audit* terbuka dari Cloudflare (pemetaan batas kepercayaan, pemburu temuan, lalu verifikasi independen per temuan). Hasilnya 8 dugaan celah, tidak ada yang kritis, dan semuanya sudah diperbaiki beserta tes regresinya. Contoh: simulator publik dulu bisa memicu WA ke pengepul sungguhan; kini simulator terisolasi penuh dan datanya terhapus otomatis setelah 2 hari.
+19b. **Bisakah satu peternak memanipulasi harga rata-rata?**
+    Tidak mudah. Rata-rata harian hanya menghitung satu laporan terbaru per peternak terverifikasi, dan harga pembanding untuk mendeteksi harga janggal tidak memakai laporan peternak itu sendiri. Jadi menaikkan harga bertahap tidak bisa menggeser patokan; laporan yang melenceng lebih dari 30% ditahan untuk dicek koordinator.
 
 ### Privasi & etika
 20. **Data pribadi peternak aman?**
