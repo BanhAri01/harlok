@@ -4,6 +4,7 @@ use App\Models\DailyPrice;
 use App\Models\Farmer;
 use App\Models\InboundMessage;
 use App\Models\OutboundMessage;
+use App\Models\StockReport;
 use App\Models\User;
 use App\Services\PriceBoard;
 use App\Support\Phone;
@@ -134,4 +135,29 @@ it('teks halaman bertingkat memakai bahasa Indonesia', function () {
     }
 
     $this->actingAs(admin())->get(route('admin.farmers'))->assertOk()->assertSee('Menampilkan')->assertDontSee('Showing');
+});
+
+it('STOP menghentikan pendaftaran di langkah mana pun lalu nomor itu tidak dibalas lagi', function () {
+    config(['lapor.whatsapp.start_keyword' => 'harlok']);
+
+    chat('6281234567002', 'HARLOK');
+    expect(chat('6281234567002', 'Stop')[0])->toContain('pendaftaran dihentikan');
+    expect(chat('6281234567002', 'halo'))->toBe([])
+        ->and(Farmer::query()->count())->toBe(0);
+
+    chat('6281234567002', 'harlok');
+    chat('6281234567002', 'Made');
+    expect(chat('6281234567002', 'berhenti!')[0])->toContain('pendaftaran dihentikan')
+        ->and(chat('6281234567002', 'stop'))->toBe([]);
+});
+
+it('STOP peternak terdaftar membatalkan langkah yang berjalan dan mematikan ringkasan pagi', function () {
+    $farmer = farmer(['digest_opt_in' => true]);
+
+    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek');
+    expect(chat($farmer->phone, 'STOP')[0])->toContain('dihentikan');
+
+    expect($farmer->refresh()->digest_opt_in)->toBeFalse()
+        ->and(StockReport::query()->where('farmer_id', $farmer->id)->where('status', StockReport::PENDING)->exists())->toBeFalse()
+        ->and(chat($farmer->phone, 'stok')[0])->not->toContain('Mohon cek');
 });

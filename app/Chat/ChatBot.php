@@ -56,6 +56,10 @@ class ChatBot
             return [$this->cancel($conversation, $farmer)];
         }
 
+        if (in_array($command, ['stop', 'berhenti'], true) && ($farmer || $conversation->state !== Conversation::IDLE)) {
+            return [$this->stop($conversation, $farmer)];
+        }
+
         if (! $farmer) {
             return $this->register($conversation, $phone, $text, $command);
         }
@@ -157,7 +161,6 @@ class ChatBot
             in_array($word, ['habis', 'terjual', 'laku'], true) => [$this->closeStock($farmer)],
             $word === 'tawaran' => $this->listOffers($conversation, $farmer),
             in_array($command, ['mulai', 'langganan'], true) => [$this->digest($farmer, true)],
-            in_array($command, ['stop', 'berhenti'], true) => [$this->digest($farmer, false)],
             in_array($command, ['1', '2', '3'], true) => ['Saat ini tidak ada tawaran yang menunggu jawaban. Ketik *TAWARAN* untuk melihat daftar tawaran.'],
             default => $this->report($conversation, $farmer, $text),
         };
@@ -421,6 +424,23 @@ class ChatBot
         return $optIn
             ? '✅ Anda akan menerima ringkasan harga setiap pagi pukul 06.00. Ketik *STOP* untuk berhenti.'
             : 'Baik, ringkasan pagi dihentikan. Ketik *MULAI* untuk berlangganan lagi.';
+    }
+
+    private function stop(Conversation $conversation, ?Farmer $farmer): string
+    {
+        $this->cancel($conversation, $farmer);
+
+        if (! $farmer) {
+            return 'Baik, pendaftaran dihentikan dan kami tidak akan membalas lagi. Ketik *'.Str::upper((string) config('lapor.whatsapp.start_keyword')).'* kapan pun bila ingin bergabung.';
+        }
+
+        $farmer->forceFill(['digest_opt_in' => false])->save();
+
+        return 'Baik, dihentikan 🙏
+Ringkasan pagi tidak dikirim lagi dan kami hanya membalas bila Anda mengirim pesan.
+
+'
+            .'Ketik *HABIS* bila stok sudah terjual agar tidak ada tawaran baru, atau *MULAI* untuk berlangganan ringkasan lagi.';
     }
 
     private function cancel(Conversation $conversation, ?Farmer $farmer): string
