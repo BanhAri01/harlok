@@ -7,7 +7,7 @@ info:
     Semua harga dalam rupiah per kilogram. API hanya mengeluarkan angka gabungan; nama dan nomor peternak tidak pernah dibagikan.
     Token diberikan koordinator (izin `prices:read`, berlaku 6 bulan). Batas 60 permintaan per menit per token.
 servers:
-  - url: https://harlok.hermesworkss.com
+  - url: https://harlok.arisantika.tech
   - url: http://127.0.0.1:8000
 security:
   - bearerAuth: []
