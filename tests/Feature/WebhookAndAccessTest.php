@@ -22,6 +22,26 @@ it('memproses pesan WhatsApp masuk dan membalas', function () {
         ->and(OutboundMessage::query()->where('phone', '6281234567890')->value('body'))->toContain('Selamat datang');
 });
 
+it('memproses setiap pesan Fonnte paket gratis yang selalu mengirim inboxid 0 dalam mode lid', function () {
+    $payload = fn (string $text) => [
+        'device' => '085133642784', 'sender' => '6285179546032', 'pengirim' => '6285179546032', 'senderlid' => '212609857003555@lid',
+        'mode' => 'lid', 'isgroup' => false, 'inboxid' => 0, 'message' => $text, 'pesan' => $text, 'name' => 'Ari',
+    ];
+
+    $this->post('/webhook/wa/rahasia-uji', $payload('halo'))->assertJson(['status' => 'accepted']);
+    $this->post('/webhook/wa/rahasia-uji', $payload('Made'))->assertJson(['status' => 'accepted']);
+
+    expect(InboundMessage::query()->where('phone', '6285179546032')->count())->toBe(2)
+        ->and(OutboundMessage::query()->where('phone', '6285179546032')->count())->toBe(2);
+});
+
+it('tidak membalas ke ID privasi WhatsApp yang bukan nomor telepon', function () {
+    $this->post('/webhook/wa/rahasia-uji', ['sender' => '212609857003555@lid', 'message' => 'halo'])->assertJson(['reason' => 'lid']);
+    $this->post('/webhook/wa/rahasia-uji', ['sender' => '6281234567890', 'isgroup' => true, 'message' => 'halo'])->assertJson(['reason' => 'group']);
+
+    expect(InboundMessage::query()->count())->toBe(0);
+});
+
 it('mengabaikan pesan grup dan pesan ganda', function () {
     $this->post('/webhook/wa/rahasia-uji', ['sender' => '1203630-123@g.us', 'message' => 'halo'])->assertJson(['reason' => 'group']);
     $this->post('/webhook/wa/rahasia-uji', ['sender' => '081234567890', 'message' => 'halo', 'member' => '0812'])->assertJson(['reason' => 'group']);

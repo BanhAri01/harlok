@@ -22,9 +22,13 @@ class WhatsAppWebhookController extends Controller
             return $this->ignored('device');
         }
 
-        $rawSender = (string) $request->input('sender');
-        if (filled($request->input('member')) || str_contains($rawSender, '@g.us') || str_contains($rawSender, '-')) {
+        $rawSender = (string) ($request->input('pengirim') ?: $request->input('sender'));
+        if ($request->boolean('isgroup') || filled($request->input('member')) || str_contains($rawSender, '@g.us') || str_contains($rawSender, '-')) {
             return $this->ignored('group');
+        }
+
+        if (str_contains($rawSender, '@')) {
+            return $this->ignored('lid');
         }
 
         $sender = Phone::normalize($rawSender);
@@ -40,9 +44,8 @@ class WhatsAppWebhookController extends Controller
         }
         RateLimiter::hit($key, 60);
 
-        $externalId = filled($request->input('inboxid') ?? $request->input('id'))
-            ? 'fonnte:'.mb_substr((string) ($request->input('inboxid') ?? $request->input('id')), 0, 90)
-            : null;
+        $inboxId = (string) ($request->input('inboxid') ?: $request->input('id'));
+        $externalId = $inboxId !== '' && $inboxId !== '0' ? 'fonnte:'.mb_substr($inboxId, 0, 90) : null;
 
         try {
             $message = InboundMessage::query()->create([
