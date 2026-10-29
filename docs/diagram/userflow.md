@@ -1,6 +1,6 @@
-# Alur Pengguna (User Flow) 4 Peran — Juru Harga
+# Alur Pengguna (User Flow) 4 Peran — Harlok
 
-Dokumen ini memodelkan diagram alur pengguna (*User Flow*) untuk empat aktor utama sistem **Juru Harga**, yang dibangun secara tepat mengikuti logika kode sumber pada `app/Chat/ChatBot.php`, `app/Services/OfferService.php`, `app/Http/Controllers/BuyerController.php`, `app/Http/Controllers/AdminController.php`, dan `app/Http/Controllers/Api/PriceApiController.php`.
+Dokumen ini memodelkan diagram alur pengguna (*User Flow*) untuk empat aktor utama sistem **Harlok**, yang dibangun secara tepat mengikuti logika kode sumber pada `app/Chat/ChatBot.php`, `app/Services/OfferService.php`, `app/Http/Controllers/BuyerController.php`, `app/Http/Controllers/AdminController.php`, dan `app/Http/Controllers/Api/PriceApiController.php`.
 
 ---
 
@@ -206,7 +206,7 @@ Mewujudkan tema *"Engineering Interconnected Web Solutions"*, sistem membuka int
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#163326', 'primaryTextColor': '#F1F4EE', 'primaryBorderColor': '#F5B700', 'lineColor': '#163326', 'secondaryColor': '#F1F4EE', 'tertiaryColor': '#F5B700'}}}%%
 flowchart TD
-    MitraStart(["🏛️ Mitra Sistem<br/>(Dinas Ketahanan Pangan / Koperasi / Peneliti / App Lain)"]) --> GetToken["Dapatkan Sanctum Bearer Token<br/>dari Koordinator Juru Harga"]
+    MitraStart(["🏛️ Mitra Sistem<br/>(Dinas Ketahanan Pangan / Koperasi / Peneliti / App Lain)"]) --> GetToken["Dapatkan Sanctum Bearer Token<br/>dari Koordinator Harlok"]
 
     GetToken --> ReadDocs["Pelajari Spesifikasi Endpoint<br/>di /dokumentasi-api"]
 

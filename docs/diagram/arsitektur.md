@@ -1,6 +1,6 @@
-# Arsitektur Sistem — Juru Harga
+# Arsitektur Sistem — Harlok
 
-Diagram ini memetakan arsitektur perangkat lunak **Juru Harga** secara menyeluruh, mulai dari kanal komunikasi di tingkat petani (*WhatsApp via Fonnte Gateway*), lapisan keamanan dan pengendali antrean, mesin percakapan berbasis *state machine*, mesin pengurai hibrida (*Regex Rule Parser* + cadangan *Claude AI*), lapisan layanan bisnis, basis data relasional, hingga berbagai kanal diseminasi data (papan publik, antarmuka web peran, dan REST API terbuka).
+Diagram ini memetakan arsitektur perangkat lunak **Harlok** secara menyeluruh, mulai dari kanal komunikasi di tingkat petani (*WhatsApp via Fonnte Gateway*), lapisan keamanan dan pengendali antrean, mesin percakapan berbasis *state machine*, mesin pengurai hibrida (*Regex Rule Parser* + cadangan *Claude AI*), lapisan layanan bisnis, basis data relasional, hingga berbagai kanal diseminasi data (papan publik, antarmuka web peran, dan REST API terbuka).
 
 ---
 

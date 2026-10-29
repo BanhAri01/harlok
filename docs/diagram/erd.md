@@ -1,6 +1,6 @@
-# Entity-Relationship Diagram (ERD) — Juru Harga
+# Entity-Relationship Diagram (ERD) — Harlok
 
-Diagram ini memodelkan seluruh skema basis data relasional **Juru Harga** secara presisi, mencakup seluruh tabel, tipe data kolom penting, kunci primer (*primary key*), kunci asing (*foreign key*), batasan keunikan (*unique constraint*), serta relasi antarentitas sesuai berkas migrasi `database/migrations/2026_10_28_000001_create_market_tables.php`.
+Diagram ini memodelkan seluruh skema basis data relasional **Harlok** secara presisi, mencakup seluruh tabel, tipe data kolom penting, kunci primer (*primary key*), kunci asing (*foreign key*), batasan keunikan (*unique constraint*), serta relasi antarentitas sesuai berkas migrasi `database/migrations/2026_10_28_000001_create_market_tables.php`.
 
 ---
 
