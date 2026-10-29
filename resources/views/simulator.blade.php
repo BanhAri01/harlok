@@ -64,6 +64,10 @@
                 <span class="angka grid size-9 shrink-0 place-items-center rounded-full bg-papan font-bold text-kuning">4</span>
                 <div><p class="font-semibold">Terima tawaran dari pengepul</p><p class="text-tinta/70">Masuk sebagai pengepul demo, tawar stok Anda, lalu balas <strong>1</strong>, <strong>2</strong>, atau <strong>3</strong> di chat ini.</p></div>
             </li>
+            <li class="flex gap-4">
+                <span class="angka grid size-9 shrink-0 place-items-center rounded-full bg-papan font-bold text-kuning">5</span>
+                <div><p class="font-semibold">Chat bebas, termasuk bahasa Bali</p><p class="text-tinta/70">Asisten AI memahami pesan seperti <em>taluh 1 ton, 25 ribu a kilo</em> atau <em>ajin tabia jani kuda?</em>, lalu menjawab dari data laporan. Keputusan penting seperti menyimpan laporan atau menerima tawaran tetap menunggu balasan Anda.</p></div>
+            </li>
         </ol>
     </div>
 </div>

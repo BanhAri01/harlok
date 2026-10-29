@@ -219,7 +219,7 @@ Alpine.data('simulator', ({ sendUrl, pollUrl, resetUrl }) => ({
     after: 0,
     busy: false,
     error: '',
-    suggestions: ['HARLOK', 'telur 2 ton 26rb', 'ya', 'harga', 'stok', 'tawaran', 'menu'],
+    suggestions: ['HARLOK', 'telur 2 ton 26rb', 'ya', 'taluh 1 ton, 25 ribu a kilo', 'ajin tabia jani kuda?', 'kapan sebaiknya saya jual?', 'harga', 'tawaran', 'menu'],
 
     init() {
         this.poll();
