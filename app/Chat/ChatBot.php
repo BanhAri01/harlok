@@ -11,6 +11,7 @@ use App\Models\Offer;
 use App\Models\OutboundMessage;
 use App\Models\Region;
 use App\Models\StockReport;
+use App\Services\MarketBrief;
 use App\Services\OfferService;
 use App\Services\PriceBoard;
 use App\Services\ReportService;
@@ -41,6 +42,7 @@ class ChatBot
     public function __construct(
         private ReportParser $parser,
         private AiAssistant $assistant,
+        private MarketBrief $brief,
         private ReportService $reports,
         private OfferService $offers,
         private PriceBoard $prices,
@@ -464,7 +466,11 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
             return "• {$row['region']->name}: ".Rupiah::format($row['avg']).$arrow.$stale;
         });
 
-        return "📊 *Harga {$commodity->name}* (per kg)\n".$lines->implode("\n")."\n\nSumber: laporan peternak terverifikasi.";
+        $brief = $this->brief->for($commodity);
+
+        return "📊 *Harga {$commodity->name}* (per kg)\n".$lines->implode("\n")
+            .(($brief['source'] ?? null) === 'ai' ? "\n\n🤖 {$brief['text']}" : '')
+            ."\n\nSumber: laporan peternak terverifikasi.";
     }
 
     private function myStock(Farmer $farmer): string

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 class BoardData
 {
-    public function __construct(private PriceBoard $prices) {}
+    public function __construct(private PriceBoard $prices, private MarketBrief $brief) {}
 
     public function commodity(?string $slug): Commodity
     {
@@ -61,6 +61,7 @@ class BoardData
                 'date' => $row['date']->toDateString(),
             ]),
             'trend' => $this->prices->trend($commodity->id, null, 14),
+            'brief' => $this->brief->for($commodity),
             'stats' => $this->stats(),
             'generated_at' => now()->toIso8601String(),
         ];

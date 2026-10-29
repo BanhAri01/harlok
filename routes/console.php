@@ -7,6 +7,7 @@ use App\Models\InboundMessage;
 use App\Models\OutboundMessage;
 use App\Models\StockReport;
 use App\Models\User;
+use App\Services\MarketBrief;
 use App\Services\Messenger;
 use App\Services\PriceBoard;
 use App\Support\Phone;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Str;
 
-Artisan::command('lapor:ringkasan-pagi', function (PriceBoard $prices, Messenger $messenger) {
+Artisan::command('lapor:ringkasan-pagi', function (PriceBoard $prices, Messenger $messenger, MarketBrief $brief) {
     $sent = 0;
 
     Farmer::query()
@@ -23,8 +24,9 @@ Artisan::command('lapor:ringkasan-pagi', function (PriceBoard $prices, Messenger
         ->where('digest_opt_in', true)
         ->whereNotNull('commodity_id')
         ->where('channel', 'wa')
-        ->chunkById(100, function ($farmers) use ($prices, $messenger, &$sent) {
+        ->chunkById(100, function ($farmers) use ($prices, $messenger, $brief, &$sent) {
             $summaries = [];
+            $briefs = [];
 
             foreach ($farmers as $farmer) {
                 $summaries[$farmer->commodity_id] ??= $prices->regionSummary($farmer->commodity);
@@ -34,11 +36,13 @@ Artisan::command('lapor:ringkasan-pagi', function (PriceBoard $prices, Messenger
                     continue;
                 }
 
+                $briefs[$farmer->commodity_id] ??= $brief->for($farmer->commodity);
                 $own = $rows->first(fn ($row) => $row['region']->id === $farmer->region_id);
                 $lines = $rows->take(5)->map(fn ($row) => "• {$row['region']->name}: ".Rupiah::format($row['avg']))->implode("\n");
 
                 $messenger->send($farmer->phone, "🌅 Selamat pagi {$farmer->firstName()}!\n"
                     ."Harga {$farmer->commodity->name} (per kg):\n{$lines}"
+                    .(($briefs[$farmer->commodity_id]['source'] ?? null) === 'ai' ? "\n\n🤖 {$briefs[$farmer->commodity_id]['text']}" : '')
                     .($own ? "\n\n📍 Wilayah Anda ({$farmer->region->name}): *".Rupiah::format($own['avg']).'*' : '')
                     ."\n\nKetik *STOP* untuk berhenti.");
                 $sent++;

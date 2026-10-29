@@ -50,6 +50,13 @@
                 </div>
                 <p class="mt-1 text-sm text-kapur/60">Rata-rata per kg dari laporan terverifikasi, diperbarui otomatis.</p>
 
+                <template x-if="data?.brief">
+                    <div class="mt-4 rounded-xl border border-kuning/30 bg-kuning/10 px-4 py-3" aria-live="polite">
+                        <p class="text-sm leading-relaxed text-kapur" x-text="data.brief.text"></p>
+                        <p class="mt-1.5 text-xs text-kapur/55" x-text="data.brief.source === 'ai' ? 'Ringkasan ditulis AI dari laporan terverifikasi. Cek angka di tabel sebelum memutuskan.' : 'Ringkasan otomatis dari laporan terverifikasi.'"></p>
+                    </div>
+                </template>
+
                 <div class="mt-4 max-h-[22rem] overflow-y-auto pr-1">
                     <template x-if="data && data.regions.length === 0">
                         <p class="py-10 text-center text-kapur/70">Belum ada laporan minggu ini. Laporan pertama akan muncul di sini.</p>

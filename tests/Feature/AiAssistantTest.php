@@ -3,6 +3,7 @@
 use App\Models\AiCall;
 use App\Models\Offer;
 use App\Models\StockReport;
+use App\Services\PriceBoard;
 use App\Support\Phone;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -182,4 +183,52 @@ it('laporan ulang menggantikan laporan janggal sebelumnya', function () {
     chat($farmer->phone, 'ya');
 
     expect(StockReport::query()->where('farmer_id', $farmer->id)->pluck('status')->all())->toBe([StockReport::CANCELLED, StockReport::CONFIRMED]);
+});
+
+function pricedMarket(): void
+{
+    stock(farmer(), 26000);
+    stock(farmer(['region_id' => region('gianyar')->id]), 27500);
+    app(PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
+    app(PriceBoard::class)->recompute(commodity()->id, region('gianyar')->id, now());
+}
+
+it('papan harga publik menampilkan ringkasan pasar otomatis walau AI belum aktif', function () {
+    pricedMarket();
+
+    $brief = $this->getJson(route('board.data', ['komoditas' => 'telur']))->assertOk()->json('brief');
+
+    expect($brief['source'])->toBe('aturan')
+        ->and($brief['text'])->toContain('termurah di Tabanan (Rp26.000/kg)')->toContain('termahal di Gianyar');
+});
+
+it('ringkasan pasar AI dibuat sekali lalu disimpan selama data harga tidak berubah', function () {
+    pricedMarket();
+    fakeAi(['summary' => 'Harga telur stabil; Tabanan paling murah Rp26.000. Cek https://iklan.test', 'direction' => 'stabil']);
+
+    $first = $this->getJson(route('board.data', ['komoditas' => 'telur']))->json('brief');
+    $this->getJson(route('board.data', ['komoditas' => 'telur']))->assertOk();
+
+    expect($first)->source->toBe('ai')->direction->toBe('stabil')
+        ->and($first['text'])->toContain('Tabanan paling murah')->not->toContain('https://');
+    Http::assertSentCount(1);
+});
+
+it('ringkasan pasar memakai versi otomatis dan tidak membanjiri AI saat AI gagal', function () {
+    pricedMarket();
+    config(['lapor.ai.driver' => 'openai', 'lapor.ai.api_key' => 'kunci-uji', 'lapor.ai.base_url' => 'https://ai.contoh.test/v1']);
+    Http::fake(['ai.contoh.test/*' => Http::response([], 500)]);
+
+    expect($this->getJson(route('board.data', ['komoditas' => 'telur']))->json('brief.source'))->toBe('aturan');
+    $this->getJson(route('board.data', ['komoditas' => 'telur']))->assertOk();
+
+    Http::assertSentCount(1);
+});
+
+it('perintah HARGA di WhatsApp menyertakan ringkasan AI', function () {
+    pricedMarket();
+    $farmer = farmer();
+    fakeAi(['summary' => 'Harga telur naik tipis di Gianyar.', 'direction' => 'naik']);
+
+    expect(chat($farmer->phone, 'harga')[0])->toContain('📊 *Harga Telur Ayam Ras*')->toContain('🤖 Harga telur naik tipis di Gianyar.');
 });
