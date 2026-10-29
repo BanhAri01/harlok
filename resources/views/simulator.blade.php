@@ -15,7 +15,7 @@
         </div>
 
         <div x-ref="feed" class="h-[30rem] space-y-2 overflow-y-auto bg-[#EFEAE2] px-3 py-4" aria-live="polite">
-            <p class="mx-auto w-fit rounded-md bg-white/80 px-3 py-1 text-center text-xs text-tinta/60">Simulasi chat WhatsApp. Ketik <strong>halo</strong> untuk mulai mendaftar.</p>
+            <p class="mx-auto w-fit rounded-md bg-white/80 px-3 py-1 text-center text-xs text-tinta/60">Simulasi chat WhatsApp. Ketik <strong>HARLOK</strong> untuk mulai mendaftar.</p>
             <template x-for="message in messages" :key="message.key">
                 <div class="flex" :class="message.from === 'me' ? 'justify-end' : 'justify-start'">
                     <div class="max-w-[85%] rounded-lg px-3 py-2 text-[0.92rem] leading-snug shadow-sm"
@@ -50,7 +50,7 @@
         <ol class="mt-8 space-y-4">
             <li class="flex gap-4">
                 <span class="angka grid size-9 shrink-0 place-items-center rounded-full bg-papan font-bold text-kuning">1</span>
-                <div><p class="font-semibold">Daftar dalam tiga balasan</p><p class="text-tinta/70">Ketik <em>halo</em>, isi nama, pilih wilayah dan komoditas dengan angka.</p></div>
+                <div><p class="font-semibold">Daftar dalam tiga balasan</p><p class="text-tinta/70">Ketik <em>HARLOK</em>, isi nama, pilih wilayah dan komoditas dengan angka.</p></div>
             </li>
             <li class="flex gap-4">
                 <span class="angka grid size-9 shrink-0 place-items-center rounded-full bg-papan font-bold text-kuning">2</span>

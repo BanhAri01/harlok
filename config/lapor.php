@@ -9,6 +9,7 @@ return [
         'webhook_secret' => env('LAPOR_WEBHOOK_SECRET'),
         'daily_outbound_limit' => (int) env('LAPOR_DAILY_OUTBOUND_LIMIT', 800),
         'per_minute' => 12,
+        'start_keyword' => env('LAPOR_START_KEYWORD', 'harlok'),
     ],
 
     'ai' => [

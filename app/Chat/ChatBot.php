@@ -77,6 +77,11 @@ class ChatBot
     private function register(Conversation $conversation, string $phone, string $text, string $command): array
     {
         $appName = config('app.name');
+        $keyword = (string) config('lapor.whatsapp.start_keyword');
+
+        if ($conversation->state === Conversation::IDLE && $keyword !== '' && ! Str::contains($text, $keyword, ignoreCase: true)) {
+            return Phone::channel($phone) === 'wa' ? [] : ['Ketik *'.Str::upper($keyword).'* untuk mulai mendaftar.'];
+        }
 
         return match ($conversation->state) {
             self::REG_NAME => $this->registerName($conversation, $text),

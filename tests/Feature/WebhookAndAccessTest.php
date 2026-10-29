@@ -6,6 +6,7 @@ use App\Models\InboundMessage;
 use App\Models\OutboundMessage;
 use App\Models\User;
 use App\Services\PriceBoard;
+use App\Support\Phone;
 
 it('menolak webhook dengan rahasia yang salah', function () {
     $this->post('/webhook/wa/salah', ['sender' => '081234567890', 'message' => 'halo'])->assertNotFound();
@@ -107,4 +108,22 @@ it('papan harga publik tidak membocorkan nama atau nomor peternak', function () 
     $response = $this->getJson(route('board.data', ['komoditas' => 'telur']))->assertOk();
 
     expect($response->getContent())->not->toContain('Rahasia')->not->toContain($farmer->phone);
+});
+
+it('nomor baru hanya dilayani bila pesannya memuat kata kunci HARLOK', function () {
+    config(['lapor.whatsapp.start_keyword' => 'harlok']);
+
+    expect(chat('6281234567001', 'kenapa gitu'))->toBe([])
+        ->and(OutboundMessage::query()->count())->toBe(0);
+
+    expect(chat('6281234567001', 'Harlok')[0])->toContain('Selamat datang');
+    expect(chat('6281234567001', 'Made')[0])->toContain('Salam kenal, Made');
+});
+
+it('peternak terdaftar tetap dilayani tanpa kata kunci dan simulator diberi petunjuk', function () {
+    config(['lapor.whatsapp.start_keyword' => 'harlok']);
+    $farmer = farmer();
+
+    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek');
+    expect(chat(Phone::SIMULATOR_PREFIX.'abc123', 'halo')[0])->toContain('HARLOK');
 });

@@ -142,7 +142,7 @@ Jadwal (cron `* * * * * php artisan schedule:run`):
 ## Panduan penggunaan
 
 **Peternak**
-1. Simpan nomor Harlok, lalu kirim `halo`.
+1. Simpan nomor Harlok, lalu kirim `HARLOK`. Nomor yang belum terdaftar hanya dilayani bila pesannya memuat kata kunci ini (atur lewat `LAPOR_START_KEYWORD`), sehingga chat lain ke nomor tersebut tidak dibalas bot.
 2. Jawab nama, pilih nomor wilayah, pilih nomor komoditas.
 3. Setiap ada stok, kirim misalnya `telur 2 ton 26rb`, periksa ringkasannya, lalu balas `YA`.
 4. Saat ada tawaran, balas `1` (terima), `2` (tolak), atau `3` (tawar balik, lalu tulis harga).
