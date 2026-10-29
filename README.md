@@ -50,7 +50,7 @@ Harlok memindahkan "pintu masuk" ke aplikasi yang sudah dipakai peternak setiap 
 
 Pembacaan pesan memakai dua lapis:
 1. **Pengurai pola** (cepat, gratis) untuk satuan ton, kwintal, kg, peti, tray, karung, ekor, dan penulisan harga seperti `26rb`, `26.500`, `26,5rb`, `rp26000`, `5.6k`.
-2. **AI (Claude Haiku)** sebagai cadangan bila pola gagal. Keluaran AI dipaksa ke skema JSON, lalu dihitung ulang dengan aturan yang sama dan **tetap dikonfirmasi ke peternak** sebelum disimpan. Ada batas penggunaan per nomor per hari.
+2. **AI (Claude Haiku)** sebagai cadangan bila pola gagal. Keluaran AI dipaksa ke skema JSON, lalu dihitung ulang dengan aturan yang sama dan **tetap dikonfirmasi ke peternak** sebelum disimpan. Ada batas penggunaan per nomor dan keseluruhan per hari. AI bersifat opsional: tanpa `ANTHROPIC_API_KEY` aplikasi tetap berjalan dengan pembaca pola, dan pesan yang tidak terbaca dibalas dengan contoh format.
 
 ### Untuk pengepul (web)
 - Peta stok (Bali dan DI Yogyakarta) dengan warna: sekitar rata-rata, di bawah rata-rata, di atas rata-rata, atau belum terverifikasi.
