@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'phone', 'region_id', 'commodity_id', 'lat', 'lng', 'channel', 'verified_at', 'digest_opt_in', 'last_message_at'])]
+#[Fillable(['name', 'phone', 'region_id', 'commodity_id', 'lat', 'lng', 'channel', 'verified_at', 'digest_opt_in', 'stopped_at', 'last_message_at'])]
 class Farmer extends Model
 {
     use HasFactory;
@@ -20,6 +20,7 @@ class Farmer extends Model
             'lng' => 'float',
             'verified_at' => 'datetime',
             'digest_opt_in' => 'boolean',
+            'stopped_at' => 'datetime',
             'last_message_at' => 'datetime',
         ];
     }
@@ -42,6 +43,11 @@ class Farmer extends Model
     public function isVerified(): bool
     {
         return $this->verified_at !== null;
+    }
+
+    public function isStopped(): bool
+    {
+        return $this->stopped_at !== null;
     }
 
     public function firstName(): string

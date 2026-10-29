@@ -57,6 +57,10 @@ class ChatBot
             $farmer->forceFill(['last_message_at' => now()])->save();
         }
 
+        if ($farmer?->isStopped() && $command !== 'keluar' && $conversation->state !== self::CONFIRM_LEAVE) {
+            return $this->resume($conversation, $farmer, $phone, $text);
+        }
+
         if ($command === 'batal') {
             return [$this->cancel($conversation, $farmer)];
         }
@@ -64,11 +68,7 @@ class ChatBot
         if ($command === 'keluar' && $farmer) {
             $conversation->moveTo(self::CONFIRM_LEAVE, [], 10);
 
-            return ["⚠️ *Keluar dari {$this->appName()}?*
-
-Nama, nomor, stok, tawaran, dan riwayat laporan Anda akan *dihapus permanen* dan tidak bisa dikembalikan.
-
-Balas *YA* untuk keluar, atau *BATAL*."];
+            return ["⚠️ *Keluar dari {$this->appName()}?*\n\nNama, nomor, stok, tawaran, dan riwayat laporan Anda akan *dihapus permanen* dan tidak bisa dikembalikan.\n\nBalas *YA* untuk keluar, atau *BATAL*."];
         }
 
         if (in_array($command, ['stop', 'berhenti', 'keluar'], true) && ($farmer || $conversation->state !== Conversation::IDLE)) {
@@ -447,7 +447,9 @@ Balas *YA* untuk keluar, atau *BATAL*."];
         if (! in_array($command, self::YES, true)) {
             $conversation->reset();
 
-            return ['Baik, Anda tidak jadi keluar. Data Anda tetap aman. Ketik *MENU* untuk bantuan.'];
+            return [$farmer->isStopped()
+                ? "Baik, Anda tidak jadi keluar. Data Anda tetap aman. Ketik *{$this->keyword()}* untuk kembali."
+                : 'Baik, Anda tidak jadi keluar. Data Anda tetap aman. Ketik *MENU* untuk bantuan.'];
         }
 
         $priced = $farmer->reports()->whereNotNull('confirmed_at')->get(['commodity_id', 'region_id', 'confirmed_at'])
@@ -463,8 +465,7 @@ Balas *YA* untuk keluar, atau *BATAL*."];
         $priced->each(fn (StockReport $report) => $this->prices->recompute($report->commodity_id, $report->region_id, $report->confirmed_at->copy()));
         AuditLog::record('wa:keluar', 'farmer.left', null, ['reports' => $priced->count()]);
 
-        return ['✅ Data Anda sudah dihapus dan kami tidak akan membalas lagi. Terima kasih sudah memakai '.$this->appName().' 🙏
-Ketik *'.Str::upper((string) config('lapor.whatsapp.start_keyword')).'* kapan pun bila ingin bergabung kembali.'];
+        return ["✅ Data Anda sudah dihapus dan kami tidak akan membalas lagi. Terima kasih sudah memakai {$this->appName()} 🙏\nKetik *{$this->keyword()}* kapan pun bila ingin bergabung kembali."];
     }
 
     private function appName(): string
@@ -472,21 +473,45 @@ Ketik *'.Str::upper((string) config('lapor.whatsapp.start_keyword')).'* kapan pu
         return (string) config('app.name');
     }
 
+    private function keyword(): string
+    {
+        return Str::upper((string) config('lapor.whatsapp.start_keyword'));
+    }
+
     private function stop(Conversation $conversation, ?Farmer $farmer): string
     {
         $this->cancel($conversation, $farmer);
 
         if (! $farmer) {
-            return 'Baik, pendaftaran dihentikan dan kami tidak akan membalas lagi. Ketik *'.Str::upper((string) config('lapor.whatsapp.start_keyword')).'* kapan pun bila ingin bergabung.';
+            return "Baik, pendaftaran dihentikan dan kami tidak akan membalas lagi. Ketik *{$this->keyword()}* kapan pun bila ingin bergabung.";
         }
 
-        $farmer->forceFill(['digest_opt_in' => false])->save();
+        DB::transaction(function () use ($farmer) {
+            $farmer->forceFill(['digest_opt_in' => false, 'stopped_at' => now()])->save();
+            Offer::query()
+                ->whereIn('stock_report_id', $farmer->reports()->select('id'))
+                ->whereIn('status', Offer::OPEN)
+                ->update(['status' => Offer::CANCELLED, 'responded_at' => now()]);
+            $farmer->reports()->where('status', StockReport::CONFIRMED)->update(['status' => StockReport::CLOSED, 'closed_at' => now()]);
+            $farmer->reports()->whereIn('status', [StockReport::PENDING, StockReport::FLAGGED])->update(['status' => StockReport::CANCELLED, 'closed_at' => now()]);
+        });
+        AuditLog::record('wa:'.$farmer->phone, 'farmer.stopped', $farmer);
 
-        return 'Baik, dihentikan 🙏
-Ringkasan pagi tidak dikirim lagi dan kami hanya membalas bila Anda mengirim pesan.
+        return "Baik, {$this->appName()} berhenti 🙏\nKami tidak akan mengirim atau membalas pesan lagi. Stok aktif Anda ditutup dan tawaran yang menunggu dibatalkan.\n\n"
+            ."Ketik *{$this->keyword()}* kapan pun untuk kembali, atau *KELUAR* untuk menghapus data Anda.";
+    }
 
-'
-            .'Ketik *HABIS* bila stok sudah terjual agar tidak ada tawaran baru, *MULAI* untuk berlangganan ringkasan lagi, atau *KELUAR* untuk berhenti total dan menghapus data Anda.';
+    private function resume(Conversation $conversation, Farmer $farmer, string $phone, string $text): array
+    {
+        if (! Str::contains($text, (string) config('lapor.whatsapp.start_keyword'), ignoreCase: true)) {
+            return Phone::channel($phone) === 'wa' ? [] : ["Ketik *{$this->keyword()}* untuk kembali memakai {$this->appName()}."];
+        }
+
+        $farmer->forceFill(['stopped_at' => null])->save();
+        $conversation->reset();
+        AuditLog::record('wa:'.$phone, 'farmer.resumed', $farmer);
+
+        return ["Selamat datang kembali, {$farmer->firstName()} 🙏", $this->help($farmer)];
     }
 
     private function cancel(Conversation $conversation, ?Farmer $farmer): string
@@ -511,9 +536,9 @@ Ringkasan pagi tidak dikirim lagi dan kami hanya membalas bila Anda mengirim pes
             ."🗂️ *STOK* — stok aktif saya\n"
             ."✅ *HABIS* — stok terakhir sudah terjual\n"
             ."🔔 *TAWARAN* — tawaran dari pembeli\n"
-            ."🌅 *MULAI* / *STOP* — ringkasan harga tiap pagi\n"
-            .'↩️ *BATAL* — batalkan langkah
-'
+            ."🌅 *MULAI* — ringkasan harga tiap pagi\n"
+            ."↩️ *BATAL* — batalkan langkah\n"
+            ."⏸️ *STOP* — berhenti dihubungi, ketik *{$this->keyword()}* untuk kembali\n"
             .'🚪 *KELUAR* — berhenti total & hapus data saya';
     }
 

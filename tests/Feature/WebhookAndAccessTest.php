@@ -3,6 +3,7 @@
 use App\Models\DailyPrice;
 use App\Models\Farmer;
 use App\Models\InboundMessage;
+use App\Models\Offer;
 use App\Models\OutboundMessage;
 use App\Models\StockReport;
 use App\Models\User;
@@ -151,15 +152,39 @@ it('STOP menghentikan pendaftaran di langkah mana pun lalu nomor itu tidak dibal
         ->and(chat('6281234567002', 'stop'))->toBe([]);
 });
 
-it('STOP peternak terdaftar membatalkan langkah yang berjalan dan mematikan ringkasan pagi', function () {
+it('STOP membuat bot diam bagi peternak terdaftar sampai ia mengetik HARLOK lagi', function () {
+    config(['lapor.whatsapp.start_keyword' => 'harlok']);
     $farmer = farmer(['digest_opt_in' => true]);
+    $active = stock($farmer);
+    $offer = Offer::query()->create(['stock_report_id' => $active->id, 'buyer_id' => buyer()->id, 'price_per_kg' => 25000, 'quantity_kg' => 500, 'status' => Offer::SENT]);
 
     expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek');
-    expect(chat($farmer->phone, 'STOP')[0])->toContain('dihentikan');
+    expect(chat($farmer->phone, 'STOP')[0])->toContain('berhenti');
 
-    expect($farmer->refresh()->digest_opt_in)->toBeFalse()
-        ->and(StockReport::query()->where('farmer_id', $farmer->id)->where('status', StockReport::PENDING)->exists())->toBeFalse()
-        ->and(chat($farmer->phone, 'stok')[0])->not->toContain('Mohon cek');
+    expect($farmer->refresh()->isStopped())->toBeTrue()
+        ->and($farmer->digest_opt_in)->toBeFalse()
+        ->and($active->refresh()->status)->toBe(StockReport::CLOSED)
+        ->and($offer->refresh()->status)->toBe(Offer::CANCELLED)
+        ->and(StockReport::query()->where('farmer_id', $farmer->id)->where('status', StockReport::PENDING)->exists())->toBeFalse();
+
+    expect(chat($farmer->phone, 'halo'))->toBe([])
+        ->and(chat($farmer->phone, 'telur 2 ton 27rb'))->toBe([])
+        ->and(chat($farmer->phone, 'menu'))->toBe([]);
+
+    $back = chat($farmer->phone, 'Harlok');
+    expect($back[0])->toContain('Selamat datang kembali')
+        ->and($back[1])->toContain('Menu')
+        ->and($farmer->refresh()->isStopped())->toBeFalse()
+        ->and(chat($farmer->phone, 'harga')[0])->not->toBeEmpty();
+});
+
+it('peternak yang berhenti tetap bisa KELUAR untuk menghapus datanya', function () {
+    $farmer = farmer();
+
+    chat($farmer->phone, 'stop');
+    expect(chat($farmer->phone, 'keluar')[0])->toContain('dihapus permanen');
+    expect(chat($farmer->phone, 'ya')[0])->toContain('sudah dihapus')
+        ->and(Farmer::query()->find($farmer->id))->toBeNull();
 });
 
 it('KELUAR menghapus data peternak setelah konfirmasi dan harganya tidak lagi dihitung', function () {
