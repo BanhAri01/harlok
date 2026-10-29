@@ -1,6 +1,6 @@
 # Riset Pasar, Komparasi Layanan, dan Data Latar Belakang — Harlok
 
-Dokumen ini disusun sebagai landasan riset empiris untuk proposal dan pengembangan sistem **Harlok** pada ajang *Web Development Competition UINIC 8.0*. Seluruh data numerik dan regulasi yang dicantumkan bersumber langsung dari publikasi resmi lembaga negara (BPS, Bapanas, Kemendag, Bank Indonesia) serta laporan riset industri (APJII, DataReportal/We Are Social).
+Dokumen ini disusun sebagai landasan riset empiris untuk proposal dan pengembangan sistem **Harlok** pada ajang *AI Web Innovation Challenge Bali DigiFest 2026*. Seluruh data numerik dan regulasi yang dicantumkan bersumber langsung dari publikasi resmi lembaga negara (BPS, Bapanas, Kemendag, Bank Indonesia) serta laporan riset industri (APJII, DataReportal/We Are Social).
 
 ---
 

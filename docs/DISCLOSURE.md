@@ -18,7 +18,7 @@
 
 ## Bagian yang sudah ada sebelum kompetisi dan yang dikembangkan untuk kompetisi
 
-Harlok mulai dibangun pada **28 Oktober 2026** (nama awal "Juru Harga") untuk lomba Web Development UINIC 8.0. Riwayat lengkapnya bisa dicek di riwayat commit GitHub.
+Harlok mulai dibangun pada **28 Oktober 2026** (nama awal "Juru Harga"). Awalnya disiapkan untuk lomba Web Development UINIC 8.0, tetapi **tidak jadi diikutsertakan** di lomba tersebut maupun lomba lain. Harlok juga belum dikomersialkan. Riwayat lengkapnya bisa dicek di riwayat commit GitHub.
 
 **Sudah ada sebelumnya** (sampai commit `e94b662`, 29 Oktober 2026):
 - Bot WhatsApp lewat Fonnte: pendaftaran, lapor stok dengan pembaca pola, konfirmasi YA/UBAH, HARGA, STOK, HABIS, TAWARAN, STOP, KELUAR.
