@@ -1,150 +1,152 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $waDigits = $waNumber ? preg_replace('/\D/', '', $waNumber) : null;
+    $waDisplay = $waNumber ? \App\Support\Phone::display($waNumber) : null;
+@endphp
 <div x-data="papan({ url: @js(route('board.data')), commodity: @js($commodity->slug) })">
-    <section class="papan-tulis">
-        <div class="mx-auto grid max-w-7xl gap-10 px-4 pb-14 pt-10 lg:grid-cols-[1fr_1.1fr] lg:pt-16">
-            <div class="flex flex-col justify-center">
-                <h1 class="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                    Tahu harga pasar sebelum menjual.
-                </h1>
-                <p class="mt-5 max-w-xl text-lg leading-relaxed text-kapur/80">
-                    Peternak dan petani cukup mengirim chat WhatsApp seperti <span class="rounded bg-white/10 px-1.5 py-0.5 font-semibold text-kuning">telur 2 ton 26rb</span>.
-                    Laporannya langsung menjadi harga rata-rata per wilayah, tampil ke pengepul terdekat, dan bisa dipakai siapa pun lewat API.
+    <section class="mx-auto max-w-6xl px-4 pt-8 sm:pt-12">
+        <div class="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+            <div>
+                <p class="text-tinta/60">{{ now()->translatedFormat('l, j F Y') }}</p>
+                <h1 class="mt-1 text-[2rem] font-bold leading-tight text-papan sm:text-[2.6rem]"
+                    x-text="'Harga ' + (data?.commodity.name ?? @js($commodity->name)).replace(/ \(.*\)$/, '').toLowerCase() + ' hari ini'">Harga {{ Str::lower(Str::before($commodity->name, ' (')) }} hari ini</h1>
+                <p class="mt-1 text-tinta/70">Rata-rata per kilogram dari laporan peternak dan petani yang sudah diverifikasi.</p>
+            </div>
+            <div class="flex flex-wrap gap-x-1 gap-y-2" role="tablist" aria-label="Pilih komoditas">
+                @foreach ($commodities as $item)
+                    <button type="button" role="tab" @click="switchCommodity(@js($item->slug))"
+                        :aria-selected="commodity === @js($item->slug)"
+                        :class="commodity === @js($item->slug) ? 'border-papan bg-papan text-white' : 'border-tinta/20 text-tinta/75 hover:border-tinta/50'"
+                        class="rounded-md border px-3 py-1.5 text-[0.95rem] font-bold">{{ Str::before($item->name, ' (') }}</button>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="mt-8 grid gap-x-14 gap-y-10 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+            <div>
+                <template x-if="data && data.regions.length === 0">
+                    <p class="border-y border-garis py-10 text-tinta/70">Belum ada laporan minggu ini untuk komoditas ini. Laporan pertama yang masuk akan langsung tampil di sini.</p>
+                </template>
+                <p x-show="!data && !error" class="py-10 text-tinta/60">Memuat harga…</p>
+
+                <ol class="border-t border-garis" x-show="data && data.regions.length" aria-label="Harga rata-rata per wilayah">
+                    <template x-for="row in data?.regions ?? []" :key="row.region + row.avg">
+                        <li class="harga-berubah flex items-baseline border-b border-garis py-3">
+                            <div class="min-w-0">
+                                <p class="text-lg font-bold" x-text="row.region"></p>
+                                <p class="text-sm text-tinta/60" x-text="row.count + ' laporan, ' + new Date(row.date + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })"></p>
+                            </div>
+                            <span class="titik-penghubung" aria-hidden="true"></span>
+                            <div class="text-right">
+                                <p class="angka text-2xl font-bold sm:text-[1.7rem]" x-text="rupiah(row.avg)"></p>
+                                <p class="angka text-sm font-bold"
+                                    :class="row.change > 0 ? 'text-naik' : (row.change < 0 ? 'text-turun' : 'text-tinta/50')"
+                                    x-text="row.change === null ? 'laporan pertama' : (row.change === 0 ? 'tetap' : (row.change > 0 ? 'naik ' : 'turun ') + rupiah(Math.abs(row.change)))"></p>
+                            </div>
+                        </li>
+                    </template>
+                </ol>
+
+                <p class="mt-4 text-tinta/70">
+                    <span x-text="(data?.stats.farmers ?? {{ $stats['farmers'] }}).toLocaleString('id-ID')">{{ number_format($stats['farmers'], 0, ',', '.') }}</span> peternak dan petani sudah melapor.
+                    Hari ini masuk <span x-text="data?.stats.reports_today ?? {{ $stats['reports_today'] }}">{{ $stats['reports_today'] }}</span> laporan, dan
+                    <span x-text="data?.stats.deals ?? {{ $stats['deals'] }}">{{ $stats['deals'] }}</span> tawaran sudah sepakat.
                 </p>
-                <div class="mt-8 flex flex-wrap gap-3">
-                    @if ($waNumber)
-                        <a href="https://wa.me/{{ preg_replace('/\D/', '', $waNumber) }}?text={{ rawurlencode('halo') }}" class="btn-utama px-5 py-3 text-base" target="_blank" rel="noopener">Lapor lewat WhatsApp</a>
-                    @endif
-                    @if (config('lapor.simulator.enabled'))
-                        <a href="{{ route('simulator.show') }}" @class(['px-5 py-3 text-base', 'btn-utama' => ! $waNumber, 'btn border border-white/25 text-kapur hover:bg-white/10' => $waNumber])>Coba chat tanpa WhatsApp</a>
-                    @endif
-                </div>
-                <dl class="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-white/15 pt-6">
-                    <div>
-                        <dt class="text-sm text-kapur/60">Pelapor</dt>
-                        <dd class="angka mt-1 text-2xl font-bold text-white" x-text="(data?.stats.farmers ?? {{ $stats['farmers'] }}).toLocaleString('id-ID')">{{ number_format($stats['farmers'], 0, ',', '.') }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm text-kapur/60">Laporan hari ini</dt>
-                        <dd class="angka mt-1 text-2xl font-bold text-white" x-text="data?.stats.reports_today ?? {{ $stats['reports_today'] }}">{{ $stats['reports_today'] }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm text-kapur/60">Transaksi sepakat</dt>
-                        <dd class="angka mt-1 text-2xl font-bold text-white" x-text="data?.stats.deals ?? {{ $stats['deals'] }}">{{ $stats['deals'] }}</dd>
-                    </div>
-                </dl>
+                <p class="mt-1 text-sm text-turun" x-show="error" x-text="error"></p>
             </div>
 
-            <div class="rounded-2xl border border-white/10 bg-black/15 p-5 shadow-2xl shadow-black/20 sm:p-6">
-                <div class="flex flex-wrap items-center gap-2">
-                    <h2 class="font-display text-lg font-bold text-white">Papan harga</h2>
-                    <div class="ml-auto flex flex-wrap gap-1" role="tablist" aria-label="Komoditas">
-                        @foreach ($commodities as $item)
-                            <button type="button" role="tab" @click="switchCommodity(@js($item->slug))"
-                                :aria-selected="commodity === @js($item->slug)"
-                                :class="commodity === @js($item->slug) ? 'bg-kuning text-tinta' : 'text-kapur/75 hover:bg-white/10'"
-                                class="rounded-full px-3 py-1 text-xs font-semibold">{{ Str::before($item->name, ' (') }}</button>
-                        @endforeach
-                    </div>
-                </div>
-                <p class="mt-1 text-sm text-kapur/60">Rata-rata per kg dari laporan terverifikasi, diperbarui otomatis.</p>
-
+            <div>
                 <template x-if="data?.brief">
-                    <div class="mt-4 rounded-xl border border-kuning/30 bg-kuning/10 px-4 py-3" aria-live="polite">
-                        <p class="text-sm leading-relaxed text-kapur" x-text="data.brief.text"></p>
-                        <p class="mt-1.5 text-xs text-kapur/55" x-text="data.brief.source === 'ai' ? 'Ringkasan ditulis AI dari laporan terverifikasi. Cek angka di tabel sebelum memutuskan.' : 'Ringkasan otomatis dari laporan terverifikasi.'"></p>
+                    <div class="border-l-4 border-kuning pl-4">
+                        <p class="text-lg leading-relaxed" x-text="data.brief.text"></p>
+                        <p class="mt-2 text-sm text-tinta/60" x-text="data.brief.source === 'ai' ? 'Ringkasan ini ditulis AI dari angka di samping. Cek angkanya sebelum memutuskan.' : 'Ringkasan otomatis dari angka di samping.'"></p>
                     </div>
                 </template>
 
-                <div class="mt-4 max-h-[22rem] overflow-y-auto pr-1">
-                    <template x-if="data && data.regions.length === 0">
-                        <p class="py-10 text-center text-kapur/70">Belum ada laporan minggu ini. Laporan pertama akan muncul di sini.</p>
-                    </template>
-                    <table class="w-full text-left" x-show="data && data.regions.length">
-                        <thead class="sr-only"><tr><th>Wilayah</th><th>Harga rata-rata</th><th>Perubahan</th></tr></thead>
-                        <tbody>
-                            <template x-for="row in data?.regions ?? []" :key="row.region + row.avg">
-                                <tr class="harga-berubah border-b border-dashed border-white/12 last:border-0">
-                                    <td class="py-2.5 pr-3">
-                                        <span class="font-semibold text-white" x-text="row.region"></span>
-                                        <span class="block text-xs text-kapur/55" x-text="row.count + ' laporan · ' + new Date(row.date + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })"></span>
-                                    </td>
-                                    <td class="angka py-2.5 text-right text-2xl font-bold text-kuning" x-text="rupiah(row.avg)"></td>
-                                    <td class="angka w-24 py-2.5 pl-3 text-right text-sm font-semibold"
-                                        :class="row.change > 0 ? 'text-[#7FD49B]' : (row.change < 0 ? 'text-[#FF9C8F]' : 'text-kapur/50')"
-                                        x-text="row.change === null ? '—' : (row.change > 0 ? '▲ ' : (row.change < 0 ? '▼ ' : '')) + Math.abs(row.change).toLocaleString('id-ID')"></td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+                <div class="mt-8">
+                    <p class="font-bold">Rata-rata 14 hari terakhir</p>
+                    <div class="mt-2 h-44"><canvas x-ref="chart" aria-label="Grafik harga rata-rata 14 hari terakhir" role="img"></canvas></div>
                 </div>
-                <div class="mt-5 h-36"><canvas x-ref="chart" aria-label="Grafik harga rata-rata 14 hari" role="img"></canvas></div>
+
+                <div class="mt-8 rounded-lg bg-daun p-5">
+                    <p class="text-lg font-bold">Punya stok untuk dijual?</p>
+                    @if ($waDigits)
+                        <p class="mt-1 text-tinta/80">Kirim <span class="stabilo font-bold">HARLOK</span> lewat WhatsApp ke <span class="angka font-bold">{{ $waDisplay }}</span>. Setelah daftar, cukup tulis stok dan harganya seperti chat biasa.</p>
+                        <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+                            <a href="https://wa.me/{{ $waDigits }}?text={{ rawurlencode('HARLOK') }}" class="btn-utama" target="_blank" rel="noopener">Chat Harlok di WhatsApp</a>
+                            @if (config('lapor.simulator.enabled'))
+                                <a href="{{ route('simulator.show') }}" class="tautan">Coba dulu di sini</a>
+                            @endif
+                        </div>
+                    @elseif (config('lapor.simulator.enabled'))
+                        <p class="mt-1 text-tinta/80">Coba chat Harlok langsung dari browser, tanpa WhatsApp.</p>
+                        <a href="{{ route('simulator.show') }}" class="btn-utama mt-4">Coba chat</a>
+                    @endif
+                </div>
             </div>
         </div>
     </section>
 
     @if ($stats['has_samples'])
-        <div class="border-b border-kuning/40 bg-kuning-muda/60">
-            <p class="mx-auto max-w-7xl px-4 py-2 text-sm text-tinta/80">
-                Sebagian titik dan harga di halaman ini adalah <strong>data contoh</strong> untuk demonstrasi. Laporan asli dari WhatsApp tampil bersamanya dan ditandai terverifikasi atau belum.
-            </p>
-        </div>
+        <p class="mx-auto mt-10 max-w-6xl px-4 text-sm text-tinta/65">
+            Catatan: sebagian harga dan titik di halaman ini adalah data contoh untuk demonstrasi. Laporan asli dari WhatsApp tampil bersamanya.
+        </p>
     @endif
 
-    <section class="mx-auto max-w-7xl px-4 pt-12">
-        <div class="flex flex-wrap items-end gap-4">
+    <section class="mx-auto mt-16 max-w-6xl px-4">
+        <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h2 class="font-display text-3xl font-extrabold tracking-tight">Stok yang sedang ditawarkan</h2>
-                <p class="mt-1 max-w-2xl text-tinta/70">Setiap titik adalah laporan stok dari chat WhatsApp. Laporan baru berkedip kuning saat masuk.</p>
+                <h2 class="text-2xl font-bold text-papan">Stok yang sedang dijual</h2>
+                <p class="mt-1 max-w-2xl text-tinta/70">Setiap titik adalah stok yang dilaporkan lewat chat. Pengepul yang sudah masuk bisa langsung menawar dari peta.</p>
             </div>
-            <div class="ml-auto flex gap-1 rounded-lg border border-garis bg-white p-1 text-sm font-semibold">
-                <button type="button" @click="goTo('bali')" :class="area === 'bali' ? 'bg-papan text-kapur' : 'text-tinta/70 hover:text-tinta'" class="rounded-md px-3 py-1.5">Bali</button>
-                <button type="button" @click="goTo('diy')" :class="area === 'diy' ? 'bg-papan text-kapur' : 'text-tinta/70 hover:text-tinta'" class="rounded-md px-3 py-1.5">DI Yogyakarta</button>
+            <div class="flex gap-1 text-[0.95rem] font-bold">
+                <button type="button" @click="goTo('bali')" :class="area === 'bali' ? 'border-papan bg-papan text-white' : 'border-tinta/20 text-tinta/75 hover:border-tinta/50'" class="rounded-md border px-3 py-1.5">Bali</button>
+                <button type="button" @click="goTo('diy')" :class="area === 'diy' ? 'border-papan bg-papan text-white' : 'border-tinta/20 text-tinta/75 hover:border-tinta/50'" class="rounded-md border px-3 py-1.5">DI Yogyakarta</button>
             </div>
         </div>
 
-        <div class="mt-5 overflow-hidden rounded-2xl border border-garis bg-white">
-            <div x-ref="map" class="h-[28rem] w-full sm:h-[32rem]" role="region" aria-label="Peta stok"></div>
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-garis px-4 py-3 text-sm text-tinta/75">
-                <span class="flex items-center gap-2"><span class="titik-stok inline-block" style="background:#1E7A46"></span>Sekitar rata-rata</span>
-                <span class="flex items-center gap-2"><span class="titik-stok inline-block" style="background:#B42318"></span>Di bawah rata-rata &gt;5%</span>
-                <span class="flex items-center gap-2"><span class="titik-stok inline-block" style="background:#C98A00"></span>Di atas rata-rata &gt;5%</span>
-                <span class="flex items-center gap-2"><span class="titik-stok inline-block" style="background:#8A968D"></span>Pelapor belum terverifikasi</span>
-                <span class="ml-auto text-tinta/55" x-show="error" x-text="error"></span>
-            </div>
+        <div class="mt-5 overflow-hidden rounded-lg border border-garis">
+            <div x-ref="map" class="h-[26rem] w-full sm:h-[30rem]" role="region" aria-label="Peta stok"></div>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-tinta/75">
+            <span class="flex items-center gap-2"><span class="titik-stok inline-block" style="background:#1E6B40"></span>Dekat rata-rata</span>
+            <span class="flex items-center gap-2"><span class="titik-stok inline-block" style="background:#A8321F"></span>Lebih murah dari rata-rata</span>
+            <span class="flex items-center gap-2"><span class="titik-stok inline-block" style="background:#C98A00"></span>Lebih mahal dari rata-rata</span>
+            <span class="flex items-center gap-2"><span class="titik-stok inline-block" style="background:#8A968D"></span>Pelapor belum diverifikasi</span>
         </div>
     </section>
 
-    <section class="mx-auto mt-16 max-w-7xl px-4">
-        <h2 class="font-display text-3xl font-extrabold tracking-tight">Dari chat sampai sepakat</h2>
-        <ol class="mt-6 grid gap-4 md:grid-cols-3">
-            <li class="panel p-5">
-                <span class="angka text-3xl font-extrabold text-kuning">1</span>
-                <h3 class="mt-2 font-display text-xl font-bold">Peternak mengirim chat</h3>
-                <p class="mt-2 text-tinta/75">Tanpa aplikasi baru. Pesan seperti <em>"telur 20 peti 390rb/peti"</em> dibaca otomatis, dikonfirmasi ulang, lalu disimpan. Peternak langsung dibalas harga rata-rata wilayahnya.</p>
-            </li>
-            <li class="panel p-5">
-                <span class="angka text-3xl font-extrabold text-kuning">2</span>
-                <h3 class="mt-2 font-display text-xl font-bold">Pengepul menawar dari web</h3>
-                <p class="mt-2 text-tinta/75">Stok tampil di peta. Tawaran dikirim ke WhatsApp peternak, lengkap dengan peringatan bila harganya jauh di bawah pasar.</p>
-            </li>
-            <li class="panel p-5">
-                <span class="angka text-3xl font-extrabold text-kuning">3</span>
-                <h3 class="mt-2 font-display text-xl font-bold">Peternak membalas 1, 2, atau 3</h3>
-                <p class="mt-2 text-tinta/75">Terima, tolak, atau tawar balik cukup dengan satu angka. Setelah sepakat, kontak kedua pihak dibagikan. Sebelumnya nomor tetap dirahasiakan.</p>
-            </li>
-        </ol>
+    <section class="mx-auto mt-20 grid max-w-6xl gap-x-14 gap-y-8 px-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+        <div class="max-w-xl">
+            <h2 class="text-2xl font-bold text-papan">Semuanya lewat chat</h2>
+            <p class="mt-3 text-tinta/80">Peternak tidak perlu memasang aplikasi atau mengingat format. Tulis saja seperti biasa, termasuk singkatan dan bahasa Bali. Harlok membaca maksudnya, menanyakan ulang supaya tidak salah catat, lalu membalas dengan harga rata-rata di wilayahnya.</p>
+            <p class="mt-3 text-tinta/80">Pengepul melihat stok di peta dan mengirim tawaran dari web. Tawarannya sampai ke WhatsApp peternak bersama harga pasar, jadi peternak tahu kalau ditawar terlalu murah. Nomor kedua pihak baru dibuka setelah sepakat.</p>
+            <p class="mt-3 text-tinta/80">Koordinator kelompok ternak memverifikasi pelapor dan memeriksa harga yang janggal, supaya harga acuan tetap jujur.</p>
+        </div>
+
+        <figure class="rounded-lg bg-wa-latar p-4 text-[0.95rem]" aria-label="Contoh percakapan">
+            <div class="space-y-2">
+                <p class="ml-auto w-fit max-w-[85%] rounded-lg rounded-tr-none bg-wa px-3 py-2">taluh 2 ton 26rb, siap kirim besok</p>
+                <p class="w-fit max-w-[90%] rounded-lg rounded-tl-none bg-white px-3 py-2">Saya catat begini: Telur Ayam Ras 2.000 kg, Rp26.000/kg, Tabanan. Kalau sudah benar balas <strong>YA</strong>.</p>
+                <p class="ml-auto w-fit rounded-lg rounded-tr-none bg-wa px-3 py-2">ya</p>
+                <p class="w-fit max-w-[90%] rounded-lg rounded-tl-none bg-white px-3 py-2">Tersimpan, stok Anda sekarang terlihat oleh pengepul di Tabanan. Rata-rata di sana Rp25.800/kg, harga Anda sedikit di atasnya.</p>
+                <p class="w-fit max-w-[90%] rounded-lg rounded-tl-none bg-white px-3 py-2">UD Sari Tani menawar 1.000 kg seharga Rp25.500/kg. Balas 1 untuk terima, 2 untuk tolak, atau 3 untuk tawar balik.</p>
+                <p class="ml-auto w-fit rounded-lg rounded-tr-none bg-wa px-3 py-2">26 lah</p>
+                <p class="w-fit max-w-[90%] rounded-lg rounded-tl-none bg-white px-3 py-2">Tawaran balik Rp26.000/kg sudah dikirim ke pembeli.</p>
+            </div>
+            <figcaption class="mt-3 text-sm text-tinta/60">Contoh percakapan peternak dengan Harlok.</figcaption>
+        </figure>
     </section>
 
-    <section class="mx-auto mt-16 max-w-7xl px-4">
-        <div class="papan-tulis grid gap-6 rounded-2xl p-6 sm:p-8 lg:grid-cols-[1fr_1.2fr]">
-            <div>
-                <h2 class="font-display text-3xl font-extrabold tracking-tight text-white">Data harga terbuka untuk ekosistem</h2>
-                <p class="mt-3 text-kapur/80">Dinas, koperasi, dan aplikasi lain bisa mengambil harga rata-rata per wilayah lewat API ber-token. Yang dibagikan hanya angka gabungan — nama dan nomor peternak tidak pernah keluar.</p>
-                <a href="{{ route('api.docs') }}" class="btn-utama mt-6">Lihat dokumentasi API</a>
-            </div>
-            <pre class="overflow-x-auto rounded-xl bg-black/30 p-4 text-sm leading-relaxed text-kapur"><code>GET /api/v1/harga?komoditas=telur&amp;wilayah=tabanan
+    <section class="mx-auto mt-20 grid max-w-6xl gap-x-14 gap-y-6 border-t border-garis px-4 pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+        <div class="max-w-xl">
+            <h2 class="text-2xl font-bold text-papan">Harga ini boleh dipakai siapa saja</h2>
+            <p class="mt-3 text-tinta/80">Dinas, koperasi, dan situs desa bisa memasang widget harga, mengunduh CSV, atau mengambil data lewat API. Yang dibagikan hanya angka gabungan per wilayah. Nama dan nomor peternak tidak pernah ikut keluar.</p>
+            <a href="{{ route('api.docs') }}" class="btn-garis mt-5">Lihat cara memakai data</a>
+        </div>
+        <pre class="kode overflow-x-auto p-4 text-sm leading-relaxed"><code>GET /api/v1/harga?komoditas=telur&amp;wilayah=tabanan
 Authorization: Bearer &lt;token&gt;
 
 {
@@ -158,7 +160,6 @@ Authorization: Bearer &lt;token&gt;
     "jumlah_laporan": 18
   }]
 }</code></pre>
-        </div>
     </section>
 </div>
 @endsection

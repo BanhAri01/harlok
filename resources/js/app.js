@@ -100,10 +100,10 @@ Alpine.data('papan', ({ url, commodity, buyer = false, offerUrlTemplate = null, 
     colorFor(point) {
         if (!point.verified) return '#8A968D';
         const average = this.averages[point.region];
-        if (!average) return '#1E7A46';
-        if (point.price < average * 0.95) return '#B42318';
+        if (!average) return '#1E6B40';
+        if (point.price < average * 0.95) return '#A8321F';
         if (point.price > average * 1.05) return '#C98A00';
-        return '#1E7A46';
+        return '#1E6B40';
     },
 
     render() {
@@ -125,12 +125,12 @@ Alpine.data('papan', ({ url, commodity, buyer = false, offerUrlTemplate = null, 
     },
 
     popup(point) {
-        const label = point.sample ? `<span style="color:#8A968D">${point.source === 'simulator' ? 'dari simulator' : 'data contoh'}</span>` : (point.verified ? '✔ terverifikasi' : 'belum terverifikasi');
+        const label = point.sample ? `<span style="color:#8A968D">${point.source === 'simulator' ? 'dari simulator' : 'data contoh'}</span>` : (point.verified ? 'terverifikasi' : 'belum terverifikasi');
         return `<div style="min-width:170px">
             <div style="font-weight:700;font-size:15px">${escapeHtml(rupiah(point.price))}/kg</div>
-            <div>${escapeHtml(kg(point.quantity_kg))} · ${escapeHtml(point.region)}</div>
+            <div>${escapeHtml(kg(point.quantity_kg))} di ${escapeHtml(point.region)}</div>
             ${point.farmer ? `<div>Peternak: ${escapeHtml(point.farmer)}</div>` : ''}
-            <div style="font-size:12px;color:#5b665f;margin-top:4px">${label} · ${escapeHtml(point.ago)}</div>
+            <div style="font-size:12px;color:#5b665f;margin-top:4px">${label}, ${escapeHtml(point.ago)}</div>
         </div>`;
     },
 
@@ -190,20 +190,20 @@ Alpine.data('papan', ({ url, commodity, buyer = false, offerUrlTemplate = null, 
                 labels,
                 datasets: [{
                     data: values,
-                    borderColor: '#F5B700',
-                    backgroundColor: 'rgba(245,183,0,0.12)',
+                    borderColor: '#1D4A34',
+                    backgroundColor: 'rgba(245,183,0,0.18)',
                     fill: true,
                     tension: 0.3,
                     pointRadius: 2,
-                    pointBackgroundColor: '#F5B700',
+                    pointBackgroundColor: '#1D4A34',
                 }],
             },
             options: {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => rupiah(context.parsed.y) + '/kg' } } },
                 scales: {
-                    x: { ticks: { color: '#B9C7BC', maxRotation: 0, autoSkip: true, maxTicksLimit: 7 }, grid: { display: false } },
-                    y: { ticks: { color: '#B9C7BC', callback: (value) => (value / 1000).toLocaleString('id-ID') + 'rb' }, grid: { color: 'rgba(232,239,230,0.08)' } },
+                    x: { ticks: { color: '#5E6B63', maxRotation: 0, autoSkip: true, maxTicksLimit: 7 }, grid: { display: false } },
+                    y: { ticks: { color: '#5E6B63', callback: (value) => (value / 1000).toLocaleString('id-ID') + 'rb' }, grid: { color: '#E6EBE2' } },
                 },
             },
         });

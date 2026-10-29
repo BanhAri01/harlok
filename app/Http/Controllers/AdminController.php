@@ -169,7 +169,7 @@ class AdminController extends Controller
         $token = $user->createToken($data['label'], ['prices:read'], now()->addMonths(6));
         AuditLog::record('user:'.$request->user()->id, 'token.created', $user, ['label' => $data['label']]);
 
-        return back()->with('token', $token->plainTextToken)->with('status', 'Token dibuat. Salin sekarang — token tidak akan ditampilkan lagi.');
+        return back()->with('token', $token->plainTextToken)->with('status', 'Token dibuat. Salin sekarang, karena token ini tidak akan ditampilkan lagi.');
     }
 
     public function revokeToken(Request $request, PersonalAccessToken $token): RedirectResponse

@@ -73,11 +73,10 @@ class OfferService
     {
         $report = $offer->report;
 
-        return "🔔 *Tawaran masuk!*\n"
-            ."{$offer->buyer->displayName()} menawar {$report->commodity->name} Anda\n"
-            .Rupiah::kg($offer->quantity_kg).' @ *'.Rupiah::format($offer->price_per_kg)."/kg*\n"
+        return "Ada tawaran masuk. {$offer->buyer->displayName()} menawar {$report->commodity->name} Anda "
+            .Rupiah::kg($offer->quantity_kg).' seharga *'.Rupiah::format($offer->price_per_kg)."/kg*.\n"
             .$this->marketLine($offer)."\n\n"
-            ."Balas:\n*1* = Terima\n*2* = Tolak\n*3* = Tawar balik";
+            .'Balas *1* untuk terima, *2* untuk tolak, atau *3* untuk tawar balik.';
     }
 
     public function marketLine(Offer $offer): string
@@ -92,14 +91,14 @@ class OfferService
         $average = Rupiah::format($offer->market_avg);
 
         if ($percent <= -(float) config('lapor.market.warn_below_percent')) {
-            return '⚠️ Tawaran ini *'.Rupiah::percent($percent)." DI BAWAH* rata-rata {$region} ({$average}). Pertimbangkan dulu.";
+            return 'Hati-hati, tawaran ini '.Rupiah::percent($percent)." lebih murah dari rata-rata {$region} yang {$average}/kg.";
         }
 
         if ($percent >= 0) {
-            return "✅ Di atas/setara rata-rata {$region} ({$average}).";
+            return "Tawaran ini sama atau lebih tinggi dari rata-rata {$region} yang {$average}/kg.";
         }
 
-        return "Sedikit di bawah rata-rata {$region} ({$average}).";
+        return "Tawaran ini sedikit di bawah rata-rata {$region} yang {$average}/kg.";
     }
 
     public function accept(Offer $offer, string $actor): Offer
@@ -142,10 +141,10 @@ class OfferService
         $farmerContact = Phone::display($report->farmer->phone);
         $buyerContact = $accepted->buyer->phone ? Phone::display($accepted->buyer->phone) : '-';
 
-        $this->messenger->send($report->farmer->phone, "🤝 *Sepakat!* {$summary}\nPembeli: {$accepted->buyer->displayName()}\nKontak: {$buyerContact}\nSilakan atur pengambilan & pembayaran langsung.");
+        $this->messenger->send($report->farmer->phone, "Sepakat, {$summary}.\nPembeli: {$accepted->buyer->displayName()}, nomor {$buyerContact}.\n\nSilakan hubungi pembeli untuk mengatur pengambilan dan pembayaran.");
 
         if ($accepted->buyer->phone) {
-            $this->messenger->send($accepted->buyer->phone, "🤝 *Sepakat!* {$summary}\nPeternak: {$report->farmer->name} ({$report->region->name})\nKontak: {$farmerContact}");
+            $this->messenger->send($accepted->buyer->phone, "Sepakat, {$summary}.\nPeternak: {$report->farmer->name} dari {$report->region->name}, nomor {$farmerContact}.");
         }
 
         return $accepted;
@@ -156,7 +155,7 @@ class OfferService
         $this->transition($offer, Offer::SENT, ['status' => Offer::REJECTED, 'responded_at' => now()]);
         AuditLog::record($actor, 'offer.rejected', $offer);
         $this->resetFarmerConversation($offer);
-        $this->notifyBuyer($offer, "❌ Tawaran {$offer->report->commodity->name} ".Rupiah::format($offer->price_per_kg).'/kg ditolak peternak.');
+        $this->notifyBuyer($offer, "Tawaran {$offer->report->commodity->name} ".Rupiah::format($offer->price_per_kg).'/kg ditolak peternak.');
     }
 
     public function counter(Offer $offer, int $price, string $actor): void
@@ -164,7 +163,7 @@ class OfferService
         $this->transition($offer, Offer::SENT, ['status' => Offer::COUNTERED, 'counter_price' => $price, 'responded_at' => now()]);
         AuditLog::record($actor, 'offer.countered', $offer, ['price' => $price]);
         $this->resetFarmerConversation($offer);
-        $this->notifyBuyer($offer, "↩️ Peternak menawar balik {$offer->report->commodity->name}: ".Rupiah::format($price).'/kg. Buka: '.route('buyer.offers'));
+        $this->notifyBuyer($offer, "Peternak menawar balik {$offer->report->commodity->name} ".Rupiah::format($price).'/kg. Lihat di '.route('buyer.offers'));
     }
 
     public function cancel(Offer $offer, User $buyer): void
@@ -172,7 +171,7 @@ class OfferService
         $this->transition($offer, null, ['status' => Offer::CANCELLED, 'responded_at' => now()]);
         AuditLog::record('user:'.$buyer->id, 'offer.cancelled', $offer);
         $this->resetFarmerConversation($offer);
-        $this->messenger->send($offer->report->farmer->phone, "ℹ️ Tawaran dari {$buyer->displayName()} untuk {$offer->report->commodity->name} dibatalkan pembeli.");
+        $this->messenger->send($offer->report->farmer->phone, "Tawaran dari {$buyer->displayName()} untuk {$offer->report->commodity->name} Anda dibatalkan oleh pembeli.");
     }
 
     private function transition(Offer $offer, ?string $requiredStatus, array $changes): void

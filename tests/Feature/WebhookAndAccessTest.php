@@ -22,7 +22,7 @@ it('memproses pesan WhatsApp masuk dan membalas', function () {
     $inbound = InboundMessage::query()->sole();
     expect($inbound->phone)->toBe('6281234567890')
         ->and($inbound->status)->toBe('processed')
-        ->and(OutboundMessage::query()->where('phone', '6281234567890')->value('body'))->toContain('Selamat datang');
+        ->and(OutboundMessage::query()->where('phone', '6281234567890')->value('body'))->toContain('selamat datang di');
 });
 
 it('memproses setiap pesan Fonnte paket gratis yang selalu mengirim inboxid 0 dalam mode lid', function () {
@@ -66,7 +66,7 @@ it('membatasi banjir pesan dari satu nomor', function () {
 it('simulator membalas tanpa mengirim WhatsApp sungguhan', function () {
     $this->postJson(route('simulator.send'), ['message' => 'halo'])
         ->assertOk()
-        ->assertJsonPath('messages.0.body', fn ($body) => str_contains($body, 'Selamat datang'));
+        ->assertJsonPath('messages.0.body', fn ($body) => str_contains($body, 'selamat datang di'));
 
     expect(OutboundMessage::query()->sole()->channel)->toBe('simulator');
 });
@@ -118,7 +118,7 @@ it('nomor baru hanya dilayani bila pesannya memuat kata kunci HARLOK', function 
     expect(chat('6281234567001', 'kenapa gitu'))->toBe([])
         ->and(OutboundMessage::query()->count())->toBe(0);
 
-    expect(chat('6281234567001', 'Harlok')[0])->toContain('Selamat datang');
+    expect(chat('6281234567001', 'Harlok')[0])->toContain('selamat datang di');
     expect(chat('6281234567001', 'Made')[0])->toContain('Salam kenal, Made');
 });
 
@@ -126,7 +126,7 @@ it('peternak terdaftar tetap dilayani tanpa kata kunci dan simulator diberi petu
     config(['lapor.whatsapp.start_keyword' => 'harlok']);
     $farmer = farmer();
 
-    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek');
+    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Saya catat begini');
     expect(chat(Phone::SIMULATOR_PREFIX.'abc123', 'halo')[0])->toContain('HARLOK');
 });
 
@@ -158,7 +158,7 @@ it('STOP membuat bot diam bagi peternak terdaftar sampai ia mengetik HARLOK lagi
     $active = stock($farmer);
     $offer = Offer::query()->create(['stock_report_id' => $active->id, 'buyer_id' => buyer()->id, 'price_per_kg' => 25000, 'quantity_kg' => 500, 'status' => Offer::SENT]);
 
-    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek');
+    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Saya catat begini');
     expect(chat($farmer->phone, 'STOP')[0])->toContain('berhenti');
 
     expect($farmer->refresh()->isStopped())->toBeTrue()
@@ -173,7 +173,7 @@ it('STOP membuat bot diam bagi peternak terdaftar sampai ia mengetik HARLOK lagi
 
     $back = chat($farmer->phone, 'Harlok');
     expect($back[0])->toContain('Selamat datang kembali')
-        ->and($back[1])->toContain('Menu')
+        ->and($back[1])->toContain('Kata yang bisa dipakai')
         ->and($farmer->refresh()->isStopped())->toBeFalse()
         ->and(chat($farmer->phone, 'harga')[0])->not->toBeEmpty();
 });

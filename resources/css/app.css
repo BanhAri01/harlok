@@ -5,20 +5,22 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';
-    --font-display: 'Bricolage Grotesque', 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';
+    --font-display: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
 
-    --color-papan: #163326;
-    --color-papan-2: #1F4433;
-    --color-kapur: #E8EFE6;
-    --color-kertas: #F1F4EE;
-    --color-tinta: #14201A;
+    --color-papan: #1D4A34;
+    --color-papan-2: #163A29;
+    --color-kapur: #F3F6F1;
+    --color-kertas: #FCFCF9;
+    --color-daun: #EAF0E6;
+    --color-tinta: #1F2B24;
     --color-kuning: #F5B700;
-    --color-kuning-muda: #FFE9A3;
-    --color-turun: #B42318;
-    --color-naik: #1E7A46;
-    --color-garis: #D5DED3;
-    --color-wa: #D9FDD3;
+    --color-kuning-muda: #FFF1BF;
+    --color-turun: #A8321F;
+    --color-naik: #1E6B40;
+    --color-garis: #DCE2D8;
+    --color-wa: #DCF8C6;
+    --color-wa-latar: #EFE7DD;
 }
 
 @layer base {
@@ -28,6 +30,8 @@
 
     body {
         @apply bg-kertas text-tinta antialiased;
+        font-size: 1.0625rem;
+        line-height: 1.6;
     }
 
     :focus-visible {
@@ -37,46 +41,55 @@
 }
 
 @utility angka {
-    font-family: var(--font-display);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums lining-nums;
 }
 
 @utility btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-[0.95rem] font-bold transition-colors disabled:opacity-50;
 }
 
 @utility btn-utama {
-    @apply btn bg-kuning text-tinta hover:bg-[#ffc81f];
+    @apply btn bg-papan text-white hover:bg-papan-2;
 }
 
 @utility btn-gelap {
-    @apply btn bg-papan text-kapur hover:bg-papan-2;
+    @apply btn bg-papan text-white hover:bg-papan-2;
 }
 
 @utility btn-garis {
-    @apply btn border border-garis bg-white text-tinta hover:border-tinta;
+    @apply btn border border-tinta/25 bg-white text-tinta hover:border-tinta/60;
+}
+
+@utility stabilo {
+    background-image: linear-gradient(transparent 55%, var(--color-kuning-muda) 55%, var(--color-kuning-muda) 92%, transparent 92%);
 }
 
 @layer components {
     .input {
-        @apply w-full rounded-lg border border-garis bg-white px-3 py-2.5 text-sm text-tinta placeholder:text-tinta/40 focus:border-papan focus:outline-none focus:ring-2 focus:ring-papan/20;
+        @apply w-full rounded-md border border-tinta/20 bg-white px-3 py-2.5 text-base text-tinta placeholder:text-tinta/40 focus:border-papan focus:outline-none focus:ring-2 focus:ring-papan/20;
     }
 
     .label {
-        @apply mb-1 block text-sm font-semibold text-tinta/80;
+        @apply mb-1 block text-sm font-bold text-tinta/80;
     }
 
     .panel {
-        @apply rounded-xl border border-garis bg-white;
+        @apply rounded-lg border border-garis bg-white;
     }
 
-    .papan-tulis {
-        background-color: var(--color-papan);
-        background-image:
-            radial-gradient(ellipse at 20% 0%, rgb(255 255 255 / 0.06), transparent 55%),
-            repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 34px);
-        @apply text-kapur;
+    .tautan {
+        @apply font-bold text-papan underline decoration-papan/30 underline-offset-4 hover:decoration-papan;
+    }
+
+    .kode {
+        @apply rounded-md border border-garis bg-daun font-mono text-tinta;
+    }
+
+    .titik-penghubung {
+        flex: 1 1 auto;
+        min-width: 1.5rem;
+        margin: 0 0.75rem 0.45em;
+        border-bottom: 2px dotted rgb(31 43 36 / 0.25);
     }
 }
 

@@ -21,7 +21,7 @@ it('mengirim tawaran ke WhatsApp peternak dengan peringatan harga rendah', funct
         ->assertJson(['status' => 'sent']);
 
     $message = OutboundMessage::query()->where('phone', $farmer->phone)->latest('id')->first();
-    expect($message->body)->toContain('UD Sumber Rejeki')->toContain('DI BAWAH')->toContain('Rp26.000');
+    expect($message->body)->toContain('UD Sumber Rejeki')->toContain('lebih murah dari rata-rata')->toContain('Rp26.000');
 });
 
 it('peternak menerima tawaran dengan membalas 1', function () {
@@ -51,7 +51,7 @@ it('peternak menawar balik lalu pengepul menyetujui dari web', function () {
 
     $this->actingAs($buyer)->postJson(route('buyer.offer', $report), ['price_per_kg' => 24000, 'quantity_kg' => 1000])->assertOk();
 
-    expect(chat($farmer->phone, '3')[0])->toContain('Berapa harga');
+    expect(chat($farmer->phone, '3')[0])->toContain('harga berapa per kg');
     expect(chat($farmer->phone, '27rb')[0])->toContain('Rp27.000');
 
     $offer = Offer::query()->sole();

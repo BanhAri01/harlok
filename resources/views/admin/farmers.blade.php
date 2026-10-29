@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Peternak'])
 
 @section('content')
-<div class="mx-auto max-w-7xl px-4 py-8">
+<div class="mx-auto max-w-6xl px-4 py-8">
     @include('admin._nav', ['heading' => 'Peternak', 'sub' => 'Hanya laporan dari peternak terverifikasi yang dihitung dalam harga rata-rata.'])
 
     <form method="GET" class="mt-6 flex flex-wrap gap-2">

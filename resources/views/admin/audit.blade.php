@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Jejak Audit'])
 
 @section('content')
-<div class="mx-auto max-w-7xl px-4 py-8">
+<div class="mx-auto max-w-6xl px-4 py-8">
     @include('admin._nav', ['heading' => 'Jejak audit', 'sub' => 'Setiap perubahan penting tercatat: siapa, apa, kapan, dari mana.'])
 
     <div class="panel mt-6 overflow-x-auto">

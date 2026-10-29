@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="refresh" content="300">
     <meta name="robots" content="noindex">
-    <title>Harga {{ $commodity->name }} — {{ config('app.name') }}</title>
+    <title>Harga {{ $commodity->name }} | {{ config('app.name') }}</title>
     <style>
-        :root { --papan: #163326; --kapur: #E8EFE6; --kuning: #F5B700; --tinta: #14201A; --kertas: #F1F4EE; --garis: #D5DED3; --naik: #1E7A46; --turun: #B42318; }
+        :root { --papan: #1D4A34; --kapur: #F3F6F1; --kuning: #F5B700; --tinta: #1F2B24; --kertas: #FCFCF9; --garis: #DCE2D8; --naik: #1E6B40; --turun: #A8321F; }
         * { box-sizing: border-box; margin: 0; }
-        body { font-family: 'Public Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; background: #fff; color: var(--tinta); font-size: 14px; }
+        body { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; background: #fff; color: var(--tinta); font-size: 14px; }
         .kotak { border: 1px solid var(--garis); border-radius: 12px; overflow: hidden; }
         .kepala { background: var(--papan); color: var(--kapur); padding: 12px 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
         .kepala h1 { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; }
@@ -26,7 +26,7 @@
         .kosong { padding: 18px 14px; opacity: .7; }
         body.gelap { background: var(--papan); color: var(--kapur); }
         body.gelap .kotak, body.gelap li, body.gelap .kaki { border-color: rgb(255 255 255 / .12); }
-        body.gelap .kaki { background: #1F4433; }
+        body.gelap .kaki { background: #163A29; }
         body.gelap .kaki a { color: var(--kuning); }
         body.gelap .harga { color: var(--kuning); }
         body.gelap .naik { color: #7FD8A2; } body.gelap .turun { color: #FF9C8F; }

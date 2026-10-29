@@ -38,13 +38,12 @@ Artisan::command('lapor:ringkasan-pagi', function (PriceBoard $prices, Messenger
 
                 $briefs[$farmer->commodity_id] ??= $brief->for($farmer->commodity);
                 $own = $rows->first(fn ($row) => $row['region']->id === $farmer->region_id);
-                $lines = $rows->take(5)->map(fn ($row) => "• {$row['region']->name}: ".Rupiah::format($row['avg']))->implode("\n");
+                $lines = $rows->take(5)->map(fn ($row) => "{$row['region']->name} ".Rupiah::format($row['avg']))->implode("\n");
 
-                $messenger->send($farmer->phone, "🌅 Selamat pagi {$farmer->firstName()}!\n"
-                    ."Harga {$farmer->commodity->name} (per kg):\n{$lines}"
-                    .(($briefs[$farmer->commodity_id]['source'] ?? null) === 'ai' ? "\n\n🤖 {$briefs[$farmer->commodity_id]['text']}" : '')
-                    .($own ? "\n\n📍 Wilayah Anda ({$farmer->region->name}): *".Rupiah::format($own['avg']).'*' : '')
-                    ."\n\nKetik *STOP* untuk berhenti.");
+                $messenger->send($farmer->phone, "Selamat pagi, {$farmer->firstName()}. Harga {$farmer->commodity->name} per kg hari ini:\n{$lines}"
+                    .($own ? "\n\nDi {$farmer->region->name} rata-ratanya *".Rupiah::format($own['avg']).'*.' : '')
+                    .(($briefs[$farmer->commodity_id]['source'] ?? null) === 'ai' ? "\n\n{$briefs[$farmer->commodity_id]['text']} (ringkasan AI)" : '')
+                    ."\n\nKetik *STOP* kalau tidak mau menerima pesan ini lagi.");
                 $sent++;
             }
         });

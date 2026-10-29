@@ -2,10 +2,10 @@
 
 @section('content')
 <div class="mx-auto max-w-md px-4 py-16">
-    <h1 class="font-display text-3xl font-extrabold tracking-tight">Masuk</h1>
-    <p class="mt-2 text-tinta/70">Untuk pengepul dan koordinator. Peternak tidak perlu akun — cukup chat WhatsApp.</p>
+    <h1 class="text-3xl font-bold text-papan">Masuk</h1>
+    <p class="mt-2 text-tinta/70">Halaman ini untuk pengepul dan koordinator. Peternak tidak perlu akun, cukup chat lewat WhatsApp.</p>
 
-    <form method="POST" action="{{ route('login') }}" class="panel mt-6 space-y-4 p-6">
+    <form method="POST" action="{{ route('login') }}" class="mt-6 space-y-4">
         @csrf
         <div>
             <label for="email" class="label">Email</label>

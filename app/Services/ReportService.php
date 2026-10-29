@@ -99,7 +99,7 @@ class ReportService
         $this->prices->recomputeFor($report);
         AuditLog::record('user:'.$admin->id, 'report.approved', $report);
 
-        $this->messenger->send($report->farmer->phone, '✅ Laporan '.$report->commodity->name.' '.Rupiah::format($report->price_per_kg).'/kg sudah dicek koordinator dan kini tampil ke pengepul.');
+        $this->messenger->send($report->farmer->phone, 'Laporan '.$report->commodity->name.' '.Rupiah::format($report->price_per_kg).'/kg sudah dicek koordinator dan sekarang terlihat oleh pengepul.');
         $this->notifyBuyers($report);
     }
 
@@ -108,7 +108,7 @@ class ReportService
         $report->forceFill(['status' => StockReport::REJECTED, 'closed_at' => now()])->save();
         AuditLog::record('user:'.$admin->id, 'report.rejected', $report);
 
-        $this->messenger->send($report->farmer->phone, 'ℹ️ Laporan '.$report->commodity->name.' '.Rupiah::format($report->price_per_kg).'/kg tidak ditampilkan karena harganya jauh dari harga pasar. Bila benar, silakan lapor ulang atau hubungi koordinator.');
+        $this->messenger->send($report->farmer->phone, 'Laporan '.$report->commodity->name.' '.Rupiah::format($report->price_per_kg).'/kg tidak ditampilkan karena harganya terlalu jauh dari harga pasar. Kalau harganya memang benar, silakan lapor ulang atau hubungi koordinator.');
     }
 
     public function close(StockReport $report, string $actor): void
@@ -154,9 +154,8 @@ class ReportService
             ->limit((int) config('lapor.market.nearby_buyers_limit'))
             ->get(['id', 'phone']);
 
-        $body = "🆕 Stok baru di {$report->region->name}\n"
-            ."{$report->commodity->name} ".Rupiah::kg($report->quantity_kg).' @ '.Rupiah::format($report->price_per_kg)."/kg\n"
-            .'Buka: '.route('buyer.dashboard', ['report' => $report->id]);
+        $body = "Ada stok baru di {$report->region->name}: {$report->commodity->name} ".Rupiah::kg($report->quantity_kg).', '.Rupiah::format($report->price_per_kg)."/kg.\n"
+            .'Lihat di '.route('buyer.dashboard', ['report' => $report->id]);
 
         foreach ($buyers as $buyer) {
             $this->messenger->send($buyer->phone, $body);

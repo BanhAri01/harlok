@@ -22,7 +22,7 @@ class InboundProcessor
             } catch (Throwable $exception) {
                 Log::error('Gagal memproses pesan masuk #'.$message->id.': '.$exception->getMessage(), ['exception' => $exception]);
                 $message->update(['status' => 'failed', 'processed_at' => now()]);
-                $this->messenger->send($message->phone, 'Maaf, sistem sedang sibuk. Mohon kirim ulang beberapa saat lagi 🙏');
+                $this->messenger->send($message->phone, 'Maaf, sistem sedang sibuk. Coba kirim ulang beberapa menit lagi.');
             }
         });
     }

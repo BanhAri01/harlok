@@ -1,11 +1,11 @@
-<div class="flex flex-wrap items-end gap-4">
+<div class="flex flex-wrap items-end gap-x-4 gap-y-5">
     <div>
-        <h1 class="font-display text-3xl font-extrabold tracking-tight">{{ $heading }}</h1>
+        <h1 class="text-2xl font-bold text-papan sm:text-3xl">{{ $heading }}</h1>
         @isset($sub)<p class="mt-1 text-tinta/70">{{ $sub }}</p>@endisset
     </div>
-    <nav class="ml-auto flex flex-wrap gap-1 rounded-lg border border-garis bg-white p-1 text-sm font-semibold" aria-label="Menu koordinator">
-        @foreach (['admin.dashboard' => 'Ringkasan', 'admin.farmers' => 'Peternak', 'admin.users' => 'Pengepul & Mitra API', 'admin.messages' => 'Log WhatsApp', 'admin.audit' => 'Jejak Audit'] as $route => $label)
-            <a href="{{ route($route) }}" @class(['rounded-md px-3 py-1.5', 'bg-papan text-kapur' => request()->routeIs($route), 'text-tinta/70 hover:text-tinta' => ! request()->routeIs($route)])>{{ $label }}</a>
+    <nav class="flex w-full flex-wrap gap-x-5 gap-y-1 border-b border-garis text-[0.95rem]" aria-label="Menu koordinator">
+        @foreach (['admin.dashboard' => 'Ringkasan', 'admin.farmers' => 'Peternak', 'admin.users' => 'Pengepul dan mitra API', 'admin.messages' => 'Log WhatsApp', 'admin.audit' => 'Jejak audit'] as $route => $label)
+            <a href="{{ route($route) }}" @class(['-mb-px border-b-2 py-2', 'border-papan font-bold text-papan' => request()->routeIs($route), 'border-transparent text-tinta/70 hover:text-tinta' => ! request()->routeIs($route)])>{{ $label }}</a>
         @endforeach
     </nav>
 </div>

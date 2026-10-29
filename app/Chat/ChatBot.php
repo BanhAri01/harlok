@@ -70,7 +70,7 @@ class ChatBot
         if ($command === 'keluar' && $farmer) {
             $conversation->moveTo(self::CONFIRM_LEAVE, [], 10);
 
-            return ["⚠️ *Keluar dari {$this->appName()}?*\n\nNama, nomor, stok, tawaran, dan riwayat laporan Anda akan *dihapus permanen* dan tidak bisa dikembalikan.\n\nBalas *YA* untuk keluar, atau *BATAL*."];
+            return ["Yakin mau keluar dari {$this->appName()}?\n\nNama, nomor, stok, tawaran, dan semua laporan Anda akan dihapus permanen dan tidak bisa dikembalikan.\n\nBalas *YA* kalau yakin, atau *BATAL* kalau tidak jadi."];
         }
 
         if (in_array($command, ['stop', 'berhenti', 'keluar'], true) && ($farmer || $conversation->state !== Conversation::IDLE)) {
@@ -102,7 +102,7 @@ class ChatBot
         $keyword = (string) config('lapor.whatsapp.start_keyword');
 
         if ($conversation->state === Conversation::IDLE && $keyword !== '' && ! Str::contains($text, $keyword, ignoreCase: true)) {
-            return Phone::channel($phone) === 'wa' ? [] : ['Ketik *'.Str::upper($keyword).'* untuk mulai mendaftar.'];
+            return Phone::channel($phone) === 'wa' ? [] : ['Ketik *'.Str::upper($keyword).'* untuk mulai daftar.'];
         }
 
         return match ($conversation->state) {
@@ -110,7 +110,7 @@ class ChatBot
             self::REG_REGION => $this->registerRegion($conversation, $command),
             self::REG_COMMODITY => $this->registerCommodity($conversation, $phone, $command),
             default => tap(
-                ["Selamat datang di *{$appName}* 🐔🌾\nLapor stok & cek harga pasar cukup lewat chat ini.\n\nSiapa nama Bapak/Ibu?"],
+                ["Halo, selamat datang di {$appName}. Di sini Bapak/Ibu bisa lapor stok dan cek harga pasar cukup lewat chat.\n\nBoleh tahu namanya siapa?"],
                 fn () => $conversation->moveTo(self::REG_NAME),
             ),
         };
@@ -121,12 +121,12 @@ class ChatBot
         $name = Str::title(Str::squish(preg_replace('/[^\pL\s\'.]/u', '', $text)));
 
         if (mb_strlen($name) < 2 || mb_strlen($name) > 60) {
-            return ['Mohon tulis nama Bapak/Ibu (huruf saja), contoh: *Made Sukarta*'];
+            return ['Tulis namanya pakai huruf saja ya, misalnya Made Sukarta.'];
         }
 
         $conversation->moveTo(self::REG_REGION, ['name' => $name]);
 
-        return ["Salam kenal, {$name} 🙏\n\nLokasi kandang/kebun di mana? Balas nomornya:\n".$this->numberedList(Region::ordered()->pluck('name'))];
+        return ["Salam kenal, {$name}.\n\nKandang atau kebunnya di mana? Balas dengan nomornya:\n".$this->numberedList(Region::ordered()->pluck('name'))];
     }
 
     private function registerRegion(Conversation $conversation, string $command): array
@@ -134,12 +134,12 @@ class ChatBot
         $region = $this->pick(Region::ordered(), $command, fn (Region $region) => $this->parser->regionAliases($region));
 
         if (! $region) {
-            return ["Nomor tidak dikenali. Balas nomornya saja:\n".$this->numberedList(Region::ordered()->pluck('name'))];
+            return ["Nomornya belum ada di daftar. Balas angkanya saja:\n".$this->numberedList(Region::ordered()->pluck('name'))];
         }
 
         $conversation->moveTo(self::REG_COMMODITY, [...$conversation->data, 'region_id' => $region->id]);
 
-        return ["📍 {$region->name}\n\nKomoditas utama? Balas nomornya:\n".$this->numberedList(Commodity::active()->pluck('name'))];
+        return ["Baik, {$region->name}.\n\nYang paling sering dijual apa? Balas dengan nomornya:\n".$this->numberedList(Commodity::active()->pluck('name'))];
     }
 
     private function registerCommodity(Conversation $conversation, string $phone, string $command): array
@@ -147,7 +147,7 @@ class ChatBot
         $commodity = $this->pick(Commodity::active(), $command, fn (Commodity $commodity) => [$commodity->slug, ...$commodity->aliases]);
 
         if (! $commodity) {
-            return ["Nomor tidak dikenali. Balas nomornya saja:\n".$this->numberedList(Commodity::active()->pluck('name'))];
+            return ["Nomornya belum ada di daftar. Balas angkanya saja:\n".$this->numberedList(Commodity::active()->pluck('name'))];
         }
 
         $farmer = Farmer::query()->create([
@@ -163,10 +163,10 @@ class ChatBot
 
         $example = $this->example($commodity);
 
-        return ["✅ *Terdaftar!* Terima kasih {$farmer->firstName()}.\n\n"
-            ."Kapan pun ada stok, kirim saja seperti ini:\n_{$example}_\n\n"
-            ."Ketik *HARGA* untuk cek harga pasar, *MENU* untuk bantuan.\n\n"
-            .'ℹ️ Koordinator akan memverifikasi nomor Anda agar harga yang Anda laporkan ikut dihitung di rata-rata wilayah.'];
+        return ["Sudah terdaftar, terima kasih {$farmer->firstName()}.\n\n"
+            ."Kalau ada stok, kirim saja seperti chat biasa, misalnya:\n{$example}\n\n"
+            ."Ketik *HARGA* untuk lihat harga pasar, atau *MENU* kalau butuh bantuan.\n\n"
+            .'Nomor Anda nanti dicek dulu oleh koordinator. Setelah itu harga yang Anda laporkan ikut dihitung di rata-rata wilayah.'];
     }
 
     private function idle(Conversation $conversation, Farmer $farmer, string $text, string $command): array
@@ -179,7 +179,7 @@ class ChatBot
             in_array($word, ['habis', 'terjual', 'laku'], true) => [$this->closeStock($farmer)],
             $word === 'tawaran' => $this->listOffers($conversation, $farmer),
             in_array($command, ['mulai', 'langganan'], true) => [$this->digest($farmer, true)],
-            in_array($command, ['1', '2', '3'], true) => ['Saat ini tidak ada tawaran yang menunggu jawaban. Ketik *TAWARAN* untuk melihat daftar tawaran.'],
+            in_array($command, ['1', '2', '3'], true) => ['Sekarang tidak ada tawaran yang perlu dijawab. Ketik *TAWARAN* untuk melihat daftarnya.'],
             default => $this->assist($conversation, $farmer, $text),
         };
     }
@@ -204,9 +204,7 @@ class ChatBot
             'langganan' => [$this->digest($farmer, true)],
             'bantuan' => [$this->help($farmer)],
             'pertanyaan' => [$understood['answer']
-                ? '🤖 '.$understood['answer'].'
-
-_Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
+                ? $understood['answer']."\n\n(Jawaban ini dibuat AI dari data laporan {$this->appName()}. Cek lagi sebelum memutuskan.)"
                 : $this->help($farmer)],
             default => $this->report($conversation, $farmer, $text, $this->parser->parse($text, $farmer->commodity, $farmer->region)),
         };
@@ -227,7 +225,7 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
                 ->latest('id')->first();
 
         if (! $offer) {
-            return ['Belum ada tawaran yang menunggu jawaban.'];
+            return ['Belum ada tawaran yang perlu dijawab.'];
         }
 
         if ($understood['intent'] === 'tawar_balik' && is_numeric($understood['price']) && $understood['price'] > 0) {
@@ -238,43 +236,39 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
 
         $conversation->moveTo(OfferService::STATE_REPLY, ['offer_id' => $offer->id], 60 * 24);
         $hint = match ($understood['intent']) {
-            'terima_tawaran' => 'Untuk menerima, balas *1*.',
-            'tolak_tawaran' => 'Untuk menolak, balas *2*.',
-            default => 'Untuk menawar balik, balas *3*.',
+            'terima_tawaran' => 'Kalau mau diterima, balas *1*.',
+            'tolak_tawaran' => 'Kalau mau ditolak, balas *2*.',
+            default => 'Kalau mau menawar balik, balas *3*.',
         };
 
-        return ["Maksud Anda tawaran ini? {$hint}
-
-".$this->offers->offerMessage($offer->load('report.commodity', 'report.region', 'buyer'))];
+        return ["Maksudnya tawaran yang ini? {$hint}\n\n".$this->offers->offerMessage($offer->load('report.commodity', 'report.region', 'buyer'))];
     }
 
     private function report(Conversation $conversation, Farmer $farmer, string $text, ParsedReport $parsed): array
     {
         if (! $parsed->hasAnything()) {
-            return ["Maaf, pesan belum saya pahami 🙏\n\nUntuk lapor stok ketik seperti:\n_".$this->example($farmer->commodity)."_\n\nAtau ketik *MENU*."];
+            return ["Maaf, saya belum paham maksudnya. Kalau mau lapor stok, tulis seperti ini:\n".$this->example($farmer->commodity)."\n\nAtau ketik *MENU* untuk lihat pilihan lain."];
         }
 
         if (! $parsed->isComplete()) {
-            return ['Data belum lengkap: *'.implode(', ', $parsed->missing())."* belum terbaca.\nContoh: _".$this->example($parsed->commodity ?? $farmer->commodity).'_'];
+            return ['Masih kurang '.implode(' dan ', $parsed->missing()).". Coba kirim lagi, misalnya:\n".$this->example($parsed->commodity ?? $farmer->commodity)];
         }
 
         if (! $parsed->commodity->priceIsPlausible($parsed->pricePerKg)) {
-            return ['Harga '.Rupiah::format($parsed->pricePerKg)."/kg untuk {$parsed->commodity->name} tampak tidak wajar "
-                .'(wajar: '.Rupiah::format($parsed->commodity->min_price).'–'.Rupiah::format($parsed->commodity->max_price)."/kg).\nMohon cek lagi lalu kirim ulang ya 🙏"];
+            return ['Harga '.Rupiah::format($parsed->pricePerKg)."/kg untuk {$parsed->commodity->name} sepertinya salah ketik. "
+                .'Biasanya di antara '.Rupiah::format($parsed->commodity->min_price).' dan '.Rupiah::format($parsed->commodity->max_price).'/kg. Tolong dicek lalu kirim ulang.'];
         }
 
         if ($parsed->quantityKg > (int) config('lapor.market.max_quantity_kg')) {
-            return ['Jumlah '.Rupiah::kg($parsed->quantityKg).' terlalu besar untuk satu laporan (maksimal '.Rupiah::kg((int) config('lapor.market.max_quantity_kg')).").\nMohon cek lagi lalu kirim ulang ya 🙏"];
+            return ['Jumlah '.Rupiah::kg($parsed->quantityKg).' terlalu besar untuk satu laporan, paling banyak '.Rupiah::kg((int) config('lapor.market.max_quantity_kg')).'. Tolong dicek lalu kirim ulang.'];
         }
 
         $report = $this->reports->createPending($farmer, $parsed, $text);
         $conversation->moveTo(self::CONFIRM_REPORT, ['report_id' => $report->id], (int) config('lapor.market.confirm_minutes'));
 
-        return ["Mohon cek:\n"
-            ."📦 {$parsed->commodity->name} — ".Rupiah::kg($parsed->quantityKg)."\n"
-            .'💰 '.Rupiah::format($parsed->pricePerKg)."/kg\n"
-            .'📍 '.($parsed->region ?? $farmer->region)->name."\n\n"
-            .'Balas *YA* untuk simpan, atau *UBAH* bila salah.'];
+        return ["Saya catat begini:\n"
+            ."{$parsed->commodity->name} ".Rupiah::kg($parsed->quantityKg).', '.Rupiah::format($parsed->pricePerKg).'/kg, '.($parsed->region ?? $farmer->region)->name.".\n\n"
+            .'Kalau sudah benar balas *YA*. Kalau ada yang salah balas *UBAH*.'];
     }
 
     private function confirmReport(Conversation $conversation, Farmer $farmer, string $text, string $command): array
@@ -295,7 +289,7 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
             $report->forceFill(['status' => StockReport::CANCELLED, 'closed_at' => now()])->save();
             $conversation->reset();
 
-            return ["Baik, laporan dibatalkan. Silakan kirim ulang, contoh:\n_".$this->example($report->commodity).'_'];
+            return ["Baik, laporan tadi saya batalkan. Silakan kirim ulang, misalnya:\n".$this->example($report->commodity)];
         }
 
         if (! in_array($command, self::YES, true)) {
@@ -315,40 +309,37 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $region = $report->region->name;
 
         if ($report->status === StockReport::FLAGGED) {
-            $message = "⏳ Laporan diterima, tapi harganya jauh dari rata-rata {$region} (".Rupiah::format($market['price'])."/kg).\nKoordinator akan mengecek dulu sebelum tampil ke pengepul.";
+            $message = "Laporannya sudah masuk, tapi harganya jauh dari rata-rata {$region} yang sekarang ".Rupiah::format($market['price']).'/kg. Koordinator akan mengecek dulu sebelum stok ini tampil ke pengepul.';
 
             if ($review['farmer_hint'] ?? null) {
-                $message .= "\n\n🤖 {$review['farmer_hint']}";
+                $message .= "\n\n{$review['farmer_hint']}";
             }
 
             if ($review['suggested_price'] ?? null) {
-                $message .= "\nBila maksud Anda ".Rupiah::format($review['suggested_price']).'/kg, kirim ulang laporannya. Laporan baru menggantikan yang ini.';
+                $message .= "\n\nKalau maksudnya ".Rupiah::format($review['suggested_price']).'/kg, kirim ulang saja laporannya. Laporan yang baru akan menggantikan yang ini.';
             }
 
             return $message;
         }
 
-        $lines = ["✅ *Tersimpan* & tampil ke pengepul di {$region}."];
+        $message = "Tersimpan, stok Anda sekarang terlihat oleh pengepul di {$region}.";
 
         if ($market) {
-            $scope = $market['scope'] === 'region' ? $region : 'semua wilayah';
-            $lines[] = "📊 Rata-rata {$scope}: ".Rupiah::format($market['price']).'/kg';
-            $lines[] = match (true) {
-                abs($deviation) < 0.5 => 'Harga Anda setara rata-rata.',
-                $deviation > 0 => 'Harga Anda '.Rupiah::percent($deviation).' di atas rata-rata.',
-                default => 'Harga Anda '.Rupiah::percent($deviation).' di bawah rata-rata.',
+            $scope = $market['scope'] === 'region' ? "di {$region}" : 'semua wilayah';
+            $message .= " Rata-rata {$scope} ".Rupiah::format($market['price']).'/kg, '.match (true) {
+                abs($deviation) < 0.5 => 'harga Anda sama dengan rata-rata.',
+                $deviation > 0 => 'harga Anda '.Rupiah::percent($deviation).' di atasnya.',
+                default => 'harga Anda '.Rupiah::percent($deviation).' di bawahnya.',
             };
         } else {
-            $lines[] = "📊 Anda pelapor pertama {$report->commodity->name} di {$region} minggu ini 👍";
+            $message .= " Anda yang pertama melapor {$report->commodity->name} di {$region} minggu ini.";
         }
 
         if (! $farmer->isVerified()) {
-            $lines[] = "\nℹ️ Nomor Anda belum diverifikasi koordinator, jadi harga Anda belum ikut dihitung di rata-rata.";
+            $message .= "\n\nKarena nomor Anda belum dicek koordinator, harga ini belum ikut dihitung di rata-rata.";
         }
 
-        $lines[] = "\nKetik *HABIS* bila stok sudah terjual.";
-
-        return implode("\n", $lines);
+        return $message."\n\nKalau stoknya sudah laku, ketik *HABIS*.";
     }
 
     private function offerReply(Conversation $conversation, Farmer $farmer, string $text, string $command): array
@@ -368,9 +359,9 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         try {
             return match ($command) {
                 '1', 'terima' => tap([], fn () => $this->offers->accept($offer, $actor)),
-                '2', 'tolak' => tap(['Baik, tawaran ditolak. Pembeli sudah diberi tahu.'], fn () => $this->offers->reject($offer, $actor)),
+                '2', 'tolak' => tap(['Baik, tawarannya ditolak dan pembeli sudah diberi tahu.'], fn () => $this->offers->reject($offer, $actor)),
                 default => tap(
-                    ['Berapa harga yang Anda minta per kg? Contoh: *27rb*'],
+                    ['Mau minta harga berapa per kg? Tulis angkanya saja, misalnya 27rb.'],
                     fn () => $conversation->moveTo(self::COUNTER_PRICE, ['offer_id' => $offer->id], 60),
                 ),
             };
@@ -394,7 +385,7 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $price = $this->parser->parse('harga '.$text, $offer->report->commodity)->pricePerKg;
 
         if (! $price || ! $offer->report->commodity->priceIsPlausible($price)) {
-            return ['Harga belum terbaca/tidak wajar. Tulis seperti *27rb* atau *27000*. Ketik *BATAL* untuk membatalkan.'];
+            return ['Harganya belum terbaca atau sepertinya salah ketik. Tulis seperti 27rb atau 27000, atau ketik *BATAL* kalau tidak jadi.'];
         }
 
         try {
@@ -405,7 +396,7 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
             return ['Tawaran ini sudah tidak berlaku.'];
         }
 
-        return ['✅ Tawaran balik '.Rupiah::format($price).'/kg sudah dikirim ke pembeli. Anda akan dikabari bila pembeli setuju.'];
+        return ['Tawaran balik '.Rupiah::format($price).'/kg sudah dikirim ke pembeli. Nanti saya kabari kalau pembeli setuju.'];
     }
 
     private function listOffers(Conversation $conversation, Farmer $farmer): array
@@ -419,13 +410,13 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
             ->get();
 
         if ($offers->isEmpty()) {
-            return ['Belum ada tawaran yang menunggu jawaban.'];
+            return ['Belum ada tawaran yang perlu dijawab.'];
         }
 
         $latest = $offers->first();
         $conversation->moveTo(OfferService::STATE_REPLY, ['offer_id' => $latest->id], 60 * 24);
 
-        $note = $offers->count() > 1 ? "\n\n(Ada {$offers->count()} tawaran. Jawab yang ini dulu, lalu ketik *TAWARAN* lagi.)" : '';
+        $note = $offers->count() > 1 ? "\n\nAda {$offers->count()} tawaran. Jawab yang ini dulu, nanti ketik *TAWARAN* lagi untuk yang berikutnya." : '';
 
         return [$this->offers->offerMessage($latest).$note];
     }
@@ -445,7 +436,7 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $rows = $this->prices->regionSummary($commodity);
 
         if ($rows->isEmpty()) {
-            return "Belum ada laporan harga {$commodity->name} minggu ini. Jadilah yang pertama melapor 👍";
+            return "Minggu ini belum ada laporan harga {$commodity->name}. Kalau Anda punya stok, laporan Anda akan jadi yang pertama.";
         }
 
         $home = $farmer->region;
@@ -457,20 +448,20 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $lines = $rows->take(10)->map(function (array $row) {
             $arrow = match (true) {
                 $row['change'] === null => '',
-                $row['change'] > 0 => ' ▲'.number_format($row['change'], 0, ',', '.'),
-                $row['change'] < 0 => ' ▼'.number_format(abs($row['change']), 0, ',', '.'),
-                default => ' ▬',
+                $row['change'] > 0 => ', naik '.number_format($row['change'], 0, ',', '.'),
+                $row['change'] < 0 => ', turun '.number_format(abs($row['change']), 0, ',', '.'),
+                default => ', tetap',
             };
-            $stale = $row['date']->isToday() ? '' : ' ('.$row['date']->translatedFormat('j M').')';
+            $stale = $row['date']->isToday() ? '' : ' (per '.$row['date']->translatedFormat('j M').')';
 
-            return "• {$row['region']->name}: ".Rupiah::format($row['avg']).$arrow.$stale;
+            return "{$row['region']->name} ".Rupiah::format($row['avg']).$arrow.$stale;
         });
 
         $brief = $this->brief->for($commodity);
 
-        return "📊 *Harga {$commodity->name}* (per kg)\n".$lines->implode("\n")
-            .(($brief['source'] ?? null) === 'ai' ? "\n\n🤖 {$brief['text']}" : '')
-            ."\n\nSumber: laporan peternak terverifikasi.";
+        return "Harga {$commodity->name} per kg:\n".$lines->implode("\n")
+            .(($brief['source'] ?? null) === 'ai' ? "\n\n{$brief['text']} (ringkasan AI)" : '')
+            ."\n\nDihitung dari laporan peternak yang sudah dicek koordinator.";
     }
 
     private function myStock(Farmer $farmer): string
@@ -478,17 +469,17 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $reports = $farmer->reports()->with('commodity')->available()->latest('id')->get();
 
         if ($reports->isEmpty()) {
-            return 'Anda belum punya stok aktif. Kirim laporan seperti: _'.$this->example($farmer->commodity).'_';
+            return 'Sekarang Anda tidak punya stok yang sedang dijual. Kirim laporan seperti ini: '.$this->example($farmer->commodity);
         }
 
         $lines = $reports->map(function (StockReport $report) {
             $offers = $report->offers()->where('status', Offer::SENT)->count();
 
-            return "• {$report->commodity->name} ".Rupiah::kg($report->quantity_kg).' @ '.Rupiah::format($report->price_per_kg)
-                .($offers ? " — {$offers} tawaran" : '');
+            return "{$report->commodity->name} ".Rupiah::kg($report->quantity_kg).', '.Rupiah::format($report->price_per_kg).'/kg'
+                .($offers ? ", ada {$offers} tawaran" : '');
         });
 
-        return "📦 *Stok aktif Anda*\n".$lines->implode("\n")."\n\nKetik *HABIS* bila sudah terjual.";
+        return "Stok Anda yang sedang dijual:\n".$lines->implode("\n")."\n\nKalau sudah laku, ketik *HABIS*.";
     }
 
     private function closeStock(Farmer $farmer): string
@@ -496,12 +487,12 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $report = $farmer->reports()->with('commodity')->available()->latest('id')->first();
 
         if (! $report) {
-            return 'Tidak ada stok aktif yang perlu ditutup.';
+            return 'Tidak ada stok yang sedang dijual, jadi tidak ada yang perlu ditutup.';
         }
 
         $this->reports->close($report, 'wa:'.$farmer->phone);
 
-        return "✅ Stok {$report->commodity->name} ".Rupiah::kg($report->quantity_kg).' ditandai sudah habis. Terima kasih!';
+        return "Oke, stok {$report->commodity->name} ".Rupiah::kg($report->quantity_kg).' sudah ditandai habis. Terima kasih.';
     }
 
     private function digest(Farmer $farmer, bool $optIn): string
@@ -509,8 +500,8 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $farmer->forceFill(['digest_opt_in' => $optIn])->save();
 
         return $optIn
-            ? '✅ Anda akan menerima ringkasan harga setiap pagi pukul 06.00. Ketik *STOP* untuk berhenti.'
-            : 'Baik, ringkasan pagi dihentikan. Ketik *MULAI* untuk berlangganan lagi.';
+            ? 'Siap, mulai besok saya kirim ringkasan harga setiap pagi jam 06.00. Ketik *STOP* kalau mau berhenti.'
+            : 'Baik, ringkasan pagi dihentikan. Ketik *MULAI* kalau mau berlangganan lagi.';
     }
 
     private function confirmLeave(Conversation $conversation, Farmer $farmer, string $command): array
@@ -519,8 +510,8 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
             $conversation->reset();
 
             return [$farmer->isStopped()
-                ? "Baik, Anda tidak jadi keluar. Data Anda tetap aman. Ketik *{$this->keyword()}* untuk kembali."
-                : 'Baik, Anda tidak jadi keluar. Data Anda tetap aman. Ketik *MENU* untuk bantuan.'];
+                ? "Baik, Anda tidak jadi keluar dan data Anda tetap tersimpan. Ketik *{$this->keyword()}* kalau mau memakai {$this->appName()} lagi."
+                : 'Baik, Anda tidak jadi keluar dan data Anda tetap tersimpan. Ketik *MENU* kalau butuh bantuan.'];
         }
 
         $priced = $farmer->reports()->whereNotNull('confirmed_at')->get(['commodity_id', 'region_id', 'confirmed_at'])
@@ -536,7 +527,7 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $priced->each(fn (StockReport $report) => $this->prices->recompute($report->commodity_id, $report->region_id, $report->confirmed_at->copy()));
         AuditLog::record('wa:keluar', 'farmer.left', null, ['reports' => $priced->count()]);
 
-        return ["✅ Data Anda sudah dihapus dan kami tidak akan membalas lagi. Terima kasih sudah memakai {$this->appName()} 🙏\nKetik *{$this->keyword()}* kapan pun bila ingin bergabung kembali."];
+        return ["Data Anda sudah dihapus dan kami tidak akan membalas lagi. Terima kasih sudah memakai {$this->appName()}.\n\nKalau suatu saat mau bergabung lagi, ketik *{$this->keyword()}*."];
     }
 
     private function appName(): string
@@ -554,7 +545,7 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $this->cancel($conversation, $farmer);
 
         if (! $farmer) {
-            return "Baik, pendaftaran dihentikan dan kami tidak akan membalas lagi. Ketik *{$this->keyword()}* kapan pun bila ingin bergabung.";
+            return "Baik, pendaftaran dihentikan dan kami tidak akan membalas lagi. Kalau berubah pikiran, ketik *{$this->keyword()}*.";
         }
 
         DB::transaction(function () use ($farmer) {
@@ -568,21 +559,21 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         });
         AuditLog::record('wa:'.$farmer->phone, 'farmer.stopped', $farmer);
 
-        return "Baik, {$this->appName()} berhenti 🙏\nKami tidak akan mengirim atau membalas pesan lagi. Stok aktif Anda ditutup dan tawaran yang menunggu dibatalkan.\n\n"
-            ."Ketik *{$this->keyword()}* kapan pun untuk kembali, atau *KELUAR* untuk menghapus data Anda.";
+        return "Baik, {$this->appName()} berhenti. Kami tidak akan mengirim atau membalas pesan lagi. Stok yang sedang dijual sudah ditutup dan tawaran yang belum dijawab dibatalkan.\n\n"
+            ."Ketik *{$this->keyword()}* kalau mau kembali, atau *KELUAR* kalau mau semua data Anda dihapus.";
     }
 
     private function resume(Conversation $conversation, Farmer $farmer, string $phone, string $text): array
     {
         if (! Str::contains($text, (string) config('lapor.whatsapp.start_keyword'), ignoreCase: true)) {
-            return Phone::channel($phone) === 'wa' ? [] : ["Ketik *{$this->keyword()}* untuk kembali memakai {$this->appName()}."];
+            return Phone::channel($phone) === 'wa' ? [] : ["Ketik *{$this->keyword()}* kalau mau memakai {$this->appName()} lagi."];
         }
 
         $farmer->forceFill(['stopped_at' => null])->save();
         $conversation->reset();
         AuditLog::record('wa:'.$phone, 'farmer.resumed', $farmer);
 
-        return ["Selamat datang kembali, {$farmer->firstName()} 🙏", $this->help($farmer)];
+        return ["Selamat datang kembali, {$farmer->firstName()}.", $this->help($farmer)];
     }
 
     private function cancel(Conversation $conversation, ?Farmer $farmer): string
@@ -596,21 +587,21 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
 
         $conversation->reset();
 
-        return $farmer ? 'Dibatalkan. Ketik *MENU* untuk bantuan.' : 'Dibatalkan. Kirim pesan apa saja untuk mulai mendaftar.';
+        return $farmer ? 'Oke, dibatalkan. Ketik *MENU* kalau butuh bantuan.' : 'Oke, dibatalkan. Kirim pesan apa saja kalau mau mulai daftar.';
     }
 
     private function help(Farmer $farmer): string
     {
-        return '*Menu '.config('app.name')."*\n\n"
-            ."📦 *Lapor stok*: ketik seperti\n_".$this->example($farmer->commodity)."_\n\n"
-            ."📊 *HARGA* — harga pasar hari ini\n"
-            ."🗂️ *STOK* — stok aktif saya\n"
-            ."✅ *HABIS* — stok terakhir sudah terjual\n"
-            ."🔔 *TAWARAN* — tawaran dari pembeli\n"
-            ."🌅 *MULAI* — ringkasan harga tiap pagi\n"
-            ."↩️ *BATAL* — batalkan langkah\n"
-            ."⏸️ *STOP* — berhenti dihubungi, ketik *{$this->keyword()}* untuk kembali\n"
-            .'🚪 *KELUAR* — berhenti total & hapus data saya';
+        return 'Untuk lapor stok, tulis saja seperti chat biasa, misalnya: '.$this->example($farmer->commodity)."\n\n"
+            ."Kata yang bisa dipakai:\n"
+            ."*HARGA* untuk harga pasar hari ini\n"
+            ."*STOK* untuk stok Anda yang sedang dijual\n"
+            ."*HABIS* kalau stok terakhir sudah laku\n"
+            ."*TAWARAN* untuk tawaran dari pembeli\n"
+            ."*MULAI* untuk ringkasan harga setiap pagi\n"
+            ."*BATAL* untuk membatalkan langkah\n"
+            ."*STOP* kalau tidak mau dihubungi lagi (ketik *{$this->keyword()}* untuk kembali)\n"
+            .'*KELUAR* untuk berhenti dan menghapus semua data Anda';
     }
 
     private function example(?Commodity $commodity): string

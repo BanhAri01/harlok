@@ -9,11 +9,9 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
             fonts: [
-                bunny('Bricolage Grotesque', {
-                    weights: [500, 700, 800],
-                }),
-                bunny('Public Sans', {
-                    weights: [400, 500, 600, 700],
+                bunny('Atkinson Hyperlegible', {
+                    weights: [400, 700],
+                    styles: ['normal', 'italic'],
                 }),
             ],
         }),

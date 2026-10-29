@@ -1,114 +1,70 @@
 # Harlok
 
-**Harga pasar yang adil, cukup lewat WhatsApp.**
+Harlok mengumpulkan harga jual dari peternak dan petani kecil lewat WhatsApp, lalu mengolahnya menjadi harga rata-rata per wilayah yang bisa dilihat siapa saja.
 
-Harlok adalah aplikasi web dengan asisten AI di WhatsApp yang menghubungkan peternak dan petani kecil, pengepul, serta pihak lain (dinas, koperasi, aplikasi lain) dalam satu ekosistem data harga. Peternak cukup mengirim chat WhatsApp seperti biasa, misalnya `telur 2 ton 26rb`, `taluh 1 ton, 25 ribu a kilo`, atau `ajin tabia jani kuda?`. Asisten AI memahami maksudnya, meminta konfirmasi, lalu pesan itu berubah menjadi:
+Peternak tidak perlu memasang aplikasi. Mereka cukup chat seperti biasa, misalnya `telur 2 ton 26rb`, `taluh 1 ton, 25 ribu a kilo`, atau bertanya `ajin tabia jani kuda?`. Asisten AI di dalam Harlok memahami maksudnya, menanyakan ulang supaya tidak salah catat, lalu membalas dengan harga rata-rata di wilayah si peternak. Laporan yang sama muncul di peta untuk pengepul, dan angka gabungannya bisa diambil dinas atau koperasi lewat API.
 
-1. **harga rata-rata per wilayah** yang langsung dikirim balik ke peternak,
-2. **titik stok di peta** yang bisa ditawar pengepul dari web,
-3. **ringkasan pasar** dan **data terbuka lewat API** untuk siapa pun yang membutuhkan.
+Aplikasinya bisa dibuka di https://harlok.arisantika.tech. Kalau tidak mau memakai WhatsApp, botnya bisa dicoba langsung di https://harlok.arisantika.tech/coba. Penjelasan soal teknologi dan AI yang dipakai ada di [docs/DISCLOSURE.md](docs/DISCLOSURE.md).
 
-- **Aplikasi:** https://harlok.arisantika.tech
-- **Coba tanpa WhatsApp:** https://harlok.arisantika.tech/coba
-- **Pengungkapan AI & teknologi:** [docs/DISCLOSURE.md](docs/DISCLOSURE.md)
+## Masalah yang mau diselesaikan
 
----
+Saya tumbuh di keluarga peternak ayam petelur di Bali. Pertanyaan yang terus berulang adalah harga telur hari ini berapa, dan apakah tawaran pengepul ini wajar. Jawabannya biasanya dicari dengan bertanya ke beberapa kenalan. Peternak yang tidak punya banyak kenalan akhirnya menerima harga apa saja yang ditawarkan.
 
-## Daftar isi
+Aplikasi pertanian yang ada umumnya meminta peternak memasang aplikasi, membuat akun, dan belajar menu baru. Kenyataannya banyak peternak, terutama yang sudah berumur, hanya memakai WhatsApp. Tulisannya penuh singkatan dan sering bercampur bahasa Bali. Akibatnya data harga hanya beredar di obrolan pribadi dan tidak pernah terkumpul jadi informasi bersama. Pengepul juga sulit menemukan stok terdekat, dan dinas tidak punya data harga di tingkat petani yang cepat.
 
-- [Masalah dan pengguna](#masalah-dan-pengguna)
-- [Fitur utama](#fitur-utama)
-- [Teknologi](#teknologi)
-- [Implementasi AI](#implementasi-ai)
-- [Arsitektur dan alur data](#arsitektur-dan-alur-data)
-- [Menjalankan di komputer sendiri](#menjalankan-di-komputer-sendiri)
-- [Alamat aplikasi dan akun demo](#alamat-aplikasi-dan-akun-demo)
-- [Panduan penggunaan](#panduan-penggunaan)
-- [API data harga](#api-data-harga)
-- [Keamanan dan privasi](#keamanan-dan-privasi)
-- [Pengujian](#pengujian)
-- [Keterbatasan saat ini](#keterbatasan-saat-ini)
-- [Sumber pihak ketiga](#sumber-pihak-ketiga)
-- [Tim](#tim)
+Harlok dibuat untuk empat kelompok: peternak dan petani kecil yang ingin tahu harga wajar sebelum menjual, pengepul yang mencari stok, koordinator kelompok ternak atau koperasi yang menjaga datanya tetap jujur, dan pihak luar seperti dinas atau situs desa yang butuh harga acuan.
 
-## Masalah dan pengguna
+## Yang bisa dilakukan
 
-- Peternak dan petani kecil tidak tahu harga pasar hari ini, sehingga posisi tawarnya lemah di depan pembeli.
-- Aplikasi pertanian umumnya mewajibkan instal aplikasi, mendaftar, dan belajar menu baru. Banyak peternak, terutama yang sudah berumur, hanya memakai WhatsApp, menulis dengan singkatan, dan bercampur bahasa daerah.
-- Data harga tersebar di obrolan pribadi dan tidak pernah terkumpul menjadi informasi bersama. Pengepul kesulitan menemukan stok terdekat, dan dinas tidak punya data harga tingkat petani yang cepat.
+### Peternak, lewat WhatsApp
 
-| Pengguna | Kebutuhan |
-|---|---|
-| Peternak dan petani kecil | Tahu harga wajar sebelum menjual, menawarkan stok tanpa aplikasi baru |
-| Pengepul | Menemukan stok terdekat dan menawar langsung |
-| Koordinator (kelompok ternak, koperasi) | Menjaga data harga tetap jujur |
-| Publik, dinas, aplikasi lain | Harga acuan terbuka lewat papan, widget, CSV, dan API |
+Pendaftaran dimulai dengan mengirim `HARLOK`, lalu menjawab nama, wilayah, dan komoditas. Setelah itu peternak bisa langsung menulis stok dan harganya dengan bahasa sehari-hari. Harlok membaca jumlah dan harga per kilogram (termasuk satuan seperti peti, tray, kwintal, atau ton), menampilkan apa yang dicatat, dan baru menyimpannya setelah peternak membalas `YA`. Balasannya berisi harga rata-rata di wilayah itu dan seberapa jauh harga si peternak dari rata-rata.
 
-## Fitur utama
+Pertanyaan bebas seperti `kapan sebaiknya saya jual?` atau `harga cabai di Gianyar naik?` dijawab singkat oleh AI dari data laporan Harlok, dan selalu diberi keterangan bahwa jawabannya dibuat AI.
 
-### Inti: asisten WhatsApp untuk peternak
-| Pesan | Hasil |
-|---|---|
-| `HARLOK` | pendaftaran 3 langkah: nama, wilayah, komoditas |
-| chat bebas: `telur 2 ton 26rb`, `20 peti 390rb/peti`, `taluh 1 ton, 25 ribu a kilo` | AI membaca jumlah (kg) dan harga per kg, lalu meminta konfirmasi **YA** / **UBAH** |
-| `YA` | laporan disimpan, peternak dibalas harga rata-rata wilayahnya dan selisih harganya |
-| `HARGA`, `ajin tabia jani kuda?` | harga rata-rata per wilayah, naik/turun, dan ringkasan pasar AI |
-| pertanyaan bebas: `kapan sebaiknya saya jual?` | jawaban AI singkat berdasarkan data laporan Harlok, diberi penanda AI |
-| `STOK`, `HABIS`, `TAWARAN` | stok aktif, tandai terjual, tawaran pembeli |
-| `1` / `2` / `3`, atau `oke saya ambil`, `26.5 lah` | terima / tolak / tawar balik. Menerima tawaran **selalu** menunggu balasan `1` dari peternak |
-| `MULAI` | ringkasan harga setiap pukul 06.00 |
-| `STOP` | bot diam total sampai peternak mengetik `HARLOK` lagi |
-| `KELUAR` | hapus data peternak setelah konfirmasi |
+Saat ada tawaran dari pengepul, peternak menerima pesan berisi harga tawaran dan perbandingannya dengan harga pasar. Peternak membalas `1` untuk terima, `2` untuk tolak, atau `3` untuk tawar balik. Kalimat seperti `oke saya ambil` atau `26.5 lah` juga dipahami, tetapi menerima tawaran tetap harus dikonfirmasi dengan balasan `1`.
 
-### Pengepul (web)
-- Peta stok dengan warna: sekitar rata-rata, di bawah, di atas, atau belum terverifikasi.
-- Kirim tawaran dengan perhitungan selisih dari rata-rata wilayah. Peternak diperingatkan bila tawaran lebih dari 10% di bawah pasar.
-- Halaman **Tawaran Saya**: menunggu, ditawar balik, sepakat (kontak peternak terbuka), ditolak, dibatalkan.
+Kata perintah lain yang bisa dipakai: `HARGA`, `STOK`, `HABIS`, `TAWARAN`, `MULAI` untuk ringkasan harga setiap pagi jam 06.00, `STOP` agar bot berhenti membalas sampai peternak mengetik `HARLOK` lagi, dan `KELUAR` untuk menghapus semua datanya.
+
+### Pengepul, lewat web
+
+Pengepul masuk ke web dan melihat stok di peta. Warna titiknya menunjukkan apakah harga stok itu dekat, di bawah, atau di atas rata-rata wilayah, dan abu-abu kalau pelapornya belum diverifikasi. Dari situ pengepul bisa mengirim tawaran. Status tawarannya bisa dipantau di halaman Tawaran Saya. Nomor peternak baru dibuka setelah kedua pihak sepakat.
 
 ### Koordinator
-- Verifikasi peternak. Hanya laporan peternak terverifikasi yang dihitung dalam rata-rata.
-- **Laporan janggal** disertai **penilaian AI** (salah ketik, salah satuan, atau mencurigakan) beserta dugaan harga yang dimaksud.
-- **Panel pemantau AI**: jumlah panggilan, tingkat keberhasilan, panggilan yang ditangani cadangan, dan waktu jawab.
-- Kelola akun pengepul dan mitra API, log WhatsApp, dan jejak audit.
+
+Koordinator memverifikasi peternak baru. Hanya laporan dari peternak yang sudah diverifikasi yang ikut dihitung di rata-rata. Laporan yang harganya terlalu jauh dari pasar ditahan dulu, dan AI memberi penilaian apakah itu salah ketik, salah satuan, atau patut dicurigai. Keputusan akhirnya tetap di tangan koordinator. Di dasbor juga ada catatan pemakaian AI (jumlah panggilan, yang berhasil, yang ditangani cadangan, dan waktu jawab), pengelolaan akun pengepul dan mitra API, log WhatsApp, serta jejak audit.
 
 ### Publik dan mitra
-- **Papan harga** yang memperbarui diri tiap 12 detik, grafik 14 hari, dan **ringkasan pasar AI**.
-- **Simulator chat** (`/coba`): bot yang sama tanpa WhatsApp.
-- **API harga** ber-token, **widget** untuk situs koperasi/desa (`/widget/harga`), dan **data terbuka CSV** (`/data/harga.csv`). Spesifikasi: `docs/openapi.yaml`.
+
+Halaman depan menampilkan daftar harga hari ini per wilayah, grafik 14 hari, dan ringkasan singkat pasar. Datanya diperbarui sendiri setiap 12 detik. Dinas atau koperasi bisa memasang widget di situs mereka (`/widget/harga`), mengunduh CSV (`/data/harga.csv`), atau memakai API dengan token. Spesifikasi API ada di `docs/openapi.yaml`.
 
 ## Teknologi
 
-| Lapisan | Teknologi |
-|---|---|
-| Frontend | Blade, Alpine.js, Tailwind CSS 4, Leaflet + OpenStreetMap, Chart.js, Vite |
-| Backend | PHP 8.3+, Laravel 13, Laravel Sanctum (token API) |
-| Database | MySQL/MariaDB di produksi, SQLite saat tes |
-| AI | Anthropic PHP SDK (Claude Haiku 5.5) atau API kompatibel OpenAI (mis. DeepSeek), dipilih lewat `.env` |
-| WhatsApp | Fonnte (gateway WhatsApp) lewat webhook |
-| Hosting | cPanel (LiteSpeed, PHP 8.x, MariaDB), cron untuk jadwal |
-| Pengujian | Pest 4, GitHub Actions |
+Backend memakai PHP 8.3 dan Laravel 13, dengan Laravel Sanctum untuk token API. Tampilan dibuat dengan Blade, Alpine.js, dan Tailwind CSS 4, peta memakai Leaflet dengan ubin OpenStreetMap, grafiknya Chart.js, dan semuanya dibangun dengan Vite. Di server dipakai MySQL/MariaDB, sedangkan tes memakai SQLite.
 
-## Implementasi AI
+Untuk AI, Harlok bisa memakai Claude Haiku 5.5 lewat Anthropic PHP SDK atau model yang kompatibel dengan API OpenAI seperti DeepSeek. Pilihannya diatur di `.env`. Pesan WhatsApp masuk dan keluar lewat Fonnte. Aplikasi berjalan di hosting cPanel dengan cron untuk tugas terjadwal, dan tesnya ditulis dengan Pest serta dijalankan di GitHub Actions.
 
-AI dipakai di tiga titik. Ketiganya melewati satu gerbang, `app/Ai/AiGateway.php`, yang memilih penyedia, membatasi kuota, memvalidasi keluaran, dan mencatat setiap panggilan.
+## Bagaimana AI dipakai
 
-| Fitur | Masukan ke AI | Keluaran AI | Mengapa butuh AI |
-|---|---|---|---|
-| **Asisten WhatsApp** (`app/Chat/AiAssistant.php`) | teks pesan, daftar komoditas/wilayah, ringkasan harga wilayah, jumlah stok dan tawaran milik pengirim | JSON: `intent` (12 pilihan), komoditas, jumlah, satuan, harga, wilayah, `answer` | Pesan peternak tidak berpola: singkatan, salah ketik, bahasa Bali, satuan lokal. Pola tetap tidak bisa menangkap semua variasi atau menjawab pertanyaan bebas |
-| **Penjaga harga** (`app/Services/AiPriceGuard.php`) | laporan yang sudah ditandai janggal oleh aturan statistik, pesan asli (nomor disamarkan), rentang wajar, harga pembanding wilayah | JSON: `verdict` (wajar / salah ketik / salah satuan / mencurigakan), dugaan harga, catatan koordinator, saran untuk peternak | Membedakan salah ketik dari upaya manipulasi butuh pemahaman konteks pesan dan satuan |
-| **Ringkasan pasar** (`app/Services/MarketBrief.php`) | rata-rata harga per wilayah dan tren 7 hari (angka gabungan saja) | JSON: ringkasan 2 kalimat dan arah harga | Mengubah tabel angka menjadi kalimat yang mudah dipahami di layar HP |
+AI dipakai di tiga tempat. Semuanya lewat satu pintu, `app/Ai/AiGateway.php`, yang memilih penyedia, membatasi kuota, memeriksa jawaban, dan mencatat setiap panggilan.
 
-**Model dan penyedia.** Bawaan memakai **Claude Haiku 5.5** lewat Anthropic PHP SDK dengan *structured output* (skema JSON). Lewat `LAPOR_AI_DRIVER=openai` aplikasi bisa memakai penyedia lain yang kompatibel dengan OpenAI, misalnya DeepSeek (`deepseek-chat`), dengan `response_format: json_object`. Model kecil dipilih karena tugasnya pendek dan terstruktur, murah, dan cepat untuk chat.
+Yang pertama adalah asisten WhatsApp (`app/Chat/AiAssistant.php`). Pesan peternak tidak punya pola tetap: singkatan, salah ketik, bahasa Bali, satuan lokal. Pembaca berbasis aturan tidak mungkin menangkap semua variasinya, apalagi menjawab pertanyaan. AI menerima teks pesan, daftar komoditas dan wilayah, ringkasan harga, serta jumlah stok dan tawaran si pengirim. Jawabannya berupa JSON berisi maksud pesan (12 kemungkinan), komoditas, jumlah, satuan, harga, wilayah, dan jawaban singkat kalau pesannya berupa pertanyaan.
 
-**Pengaman yang dibangun di sekitar AI:**
-- **Keluaran divalidasi.** Kunci wajib dan nilai `enum` dicek. Jawaban di luar skema dibuang, lalu bot memakai cadangan.
-- **AI tidak pernah mengambil keputusan sendiri.** Laporan baru tersimpan setelah peternak membalas `YA`, menerima tawaran tetap harus dibalas `1`, dan laporan janggal tetap diputuskan koordinator. AI hanya memahami, menjelaskan, dan menyarankan.
-- **Selalu ada cadangan.** Bila AI mati, kuota habis, waktu habis, ditolak, atau jawabannya tidak valid, bot memakai pembaca pola (`ReportParser`) dan ringkasan pasar memakai versi aturan. Kegagalan ringkasan disimpan 15 menit agar tidak membanjiri AI.
-- **Privasi.** Nama dan nomor peternak tidak dikirim ke AI. Deretan angka panjang di pesan asli disamarkan sebelum dikirim. Tabel `ai_calls` hanya mencatat jenis, status, model, dan lama panggilan, tanpa isi pesan.
-- **Kuota.** Ada batas per nomor (30 per hari), per hari untuk semua nomor, dan kuota terpisah untuk simulator.
-- **Isi pesan diperlakukan sebagai data.** Prompt meminta model mengabaikan perintah di dalam pesan. Jawaban bebas dipotong, tautan dihapus, dan diberi penanda "Dijawab AI… cek kembali sebelum memutuskan".
+Yang kedua adalah penjaga harga (`app/Services/AiPriceGuard.php`). Aturan statistik menandai laporan yang menyimpang lebih dari 30% dari rata-rata. Untuk laporan seperti itu, AI menilai pesan aslinya (dengan deretan angka panjang disamarkan) dan memberi dugaan apakah itu wajar, salah ketik, salah satuan, atau mencurigakan, lengkap dengan dugaan harga yang dimaksud dan saran untuk peternak.
 
-Konfigurasi `.env`:
+Yang ketiga adalah ringkasan pasar (`app/Services/MarketBrief.php`). AI hanya menerima angka gabungan: rata-rata per wilayah dan tren 7 hari. Hasilnya dua kalimat yang dipakai di halaman depan, di balasan perintah `HARGA`, dan di ringkasan pagi.
+
+Model kecil dipilih karena tugasnya pendek dan terstruktur, jadi murah dan cukup cepat untuk chat. Supaya AI tetap aman dipakai:
+
+- Jawaban AI diperiksa terhadap skema. Kalau ada kunci yang hilang atau nilai di luar pilihan, jawabannya dibuang.
+- AI tidak pernah memutuskan sendiri. Laporan baru tersimpan setelah peternak membalas `YA`, tawaran hanya diterima lewat balasan `1`, dan laporan janggal tetap diputuskan koordinator.
+- Selalu ada cadangan. Kalau AI mati, kuota habis, waktunya lewat 12 detik, permintaannya ditolak, atau jawabannya tidak valid, bot kembali ke pembaca aturan (`ReportParser`) dan ringkasan pasar memakai versi aturan.
+- Nama dan nomor peternak tidak pernah dikirim ke AI. Tabel `ai_calls` hanya mencatat jenis, status, model, dan lama panggilan, tanpa isi pesan.
+- Ada kuota per nomor (30 per hari), kuota harian untuk semua nomor, dan kuota terpisah untuk simulator.
+- Isi pesan diperlakukan sebagai data, bukan perintah. Jawaban bebas dipotong, tautan dibuang, dan diberi keterangan bahwa jawaban itu dibuat AI.
+
+Pengaturannya di `.env`:
+
 ```
 LAPOR_AI_DRIVER=anthropic        # atau openai
 LAPOR_AI_KEY=<kunci API>
@@ -116,22 +72,22 @@ LAPOR_AI_MODEL=                  # kosong = claude-haiku-5-5 / deepseek-chat
 LAPOR_AI_BASE_URL=               # hanya untuk openai, bawaan https://api.deepseek.com
 ```
 
-## Arsitektur dan alur data
+## Alur data
 
 ```
  Peternak (WhatsApp)                                        Pengepul / Publik (Web)
       │ "taluh 1 ton, 25 ribu a kilo"                               ▲
       ▼                                                             │
- ┌────────────┐ webhook ┌────────────────────────────────────────┐  │ papan harga, peta, tawaran
+ ┌────────────┐ webhook ┌────────────────────────────────────────┐  │ halaman harga, peta, tawaran
  │ Fonnte (WA)│───────▶ │ Laravel 13                             │──┤ (Alpine, Leaflet, Chart.js)
  └────────────┘         │  WhatsAppWebhookController             │  │
       ▲                 │   └ cek rahasia, grup, ganda, banjir   │  ▼
-      │ balasan         │  InboundProcessor → ChatBot (status)   │ API /api/v1 · widget · CSV
+      │ balasan         │  InboundProcessor → ChatBot (status)   │ API /api/v1, widget, CSV
       │                 │   ├ AiAssistant ──┐                    │
       │                 │   └ ReportParser  │ cadangan           │
       │                 │  ReportService → AiPriceGuard ──┐      │
       │                 │  PriceBoard → MarketBrief ──────┤      │
-      └──────────────── │  OfferService · Messenger       ▼      │
+      └──────────────── │  OfferService, Messenger        ▼      │
                         │                    AiGateway ──────────┼──▶ Claude API / DeepSeek API
                         └───────────────┬────────────────────────┘
                                         ▼
@@ -139,17 +95,13 @@ LAPOR_AI_BASE_URL=               # hanya untuk openai, bawaan https://api.deepse
                          daily_prices, ai_calls, audit_logs, ...
 ```
 
-1. Fonnte meneruskan pesan ke `POST /webhook/wa/{rahasia}`. Pesan disimpan di `inbound_messages` lalu diproses **setelah respons dikirim**, dengan kunci per nomor.
-2. `ChatBot` menjalankan mesin status percakapan per nomor. Perintah pasti (`YA`, `1`, `HARGA`) ditangani langsung. Pesan bebas dikirim ke `AiAssistant`, lalu hasilnya dijalankan oleh kode yang sama dengan perintah biasa.
-3. `ReportService` menyimpan laporan. Laporan yang menyimpang lebih dari 30% dari rata-rata ditahan dan dinilai `AiPriceGuard`.
-4. `PriceBoard` menghitung rata-rata, median, minimum, dan maksimum harian per komoditas per wilayah. `MarketBrief` merangkumnya untuk papan, perintah HARGA, dan ringkasan pagi.
-5. `OfferService` mengelola tawaran dengan transaksi dan `lockForUpdate`. `Messenger` mengirim semua pesan keluar dengan batas harian.
+Fonnte meneruskan setiap pesan ke `POST /webhook/wa/{rahasia}`. Pesan disimpan dulu di `inbound_messages`, lalu diproses setelah respons dikirim, dengan kunci per nomor supaya pesan dari satu orang tidak diproses bersamaan. `ChatBot` menyimpan status percakapan tiap nomor. Perintah yang pasti seperti `YA`, `1`, atau `HARGA` ditangani langsung, sedangkan pesan bebas dikirim ke `AiAssistant` dan hasilnya dijalankan oleh kode yang sama dengan perintah biasa.
 
-Diagram lengkap: `docs/diagram/` (arsitektur, ERD, alur pengguna).
+`ReportService` menyimpan laporan dan menahan yang menyimpang. `PriceBoard` menghitung rata-rata, median, minimum, dan maksimum harian per komoditas dan wilayah. `OfferService` mengurus tawaran di dalam transaksi database dengan `lockForUpdate`, dan `Messenger` mengirim semua pesan keluar dengan batas harian. Diagram arsitektur, ERD, dan alur pengguna ada di `docs/diagram/`.
 
 ## Menjalankan di komputer sendiri
 
-Kebutuhan: PHP 8.3+ (pdo_sqlite atau pdo_mysql, mbstring, intl), Composer 2, Node.js 20+.
+Yang dibutuhkan: PHP 8.3 atau lebih baru (dengan pdo_sqlite atau pdo_mysql, mbstring, intl), Composer 2, dan Node.js 20 atau lebih baru.
 
 ```bash
 git clone https://github.com/BanhAri01/harlok.git && cd harlok
@@ -163,58 +115,43 @@ php artisan lapor:admin admin@contoh.id "Koordinator"
 php artisan serve
 ```
 
-- `migrate --seed` mengisi 14 wilayah (Bali dan DI Yogyakarta) dan 5 komoditas beserta sebutan lokalnya (mis. *taluh*, *tabia*, *baas*).
-- `SampleDataSeeder` (opsional) mengisi data contoh 14 hari dan akun demo pengepul. Data contoh ditandai di layar dan bisa dihapus dengan `php artisan lapor:hapus-contoh`.
-- Tanpa kunci AI, aplikasi tetap berjalan dengan pembaca pola. Tanpa token Fonnte (`LAPOR_WA_DRIVER=log`), balasan hanya dicatat, jadi gunakan `/coba`.
-- Jadwal (cron `* * * * * php artisan schedule:run`): `lapor:ringkasan-pagi` pukul 06.00 dan `lapor:rapikan` setiap 30 menit.
+`migrate --seed` mengisi 14 wilayah di Bali dan DI Yogyakarta serta 5 komoditas beserta sebutan lokalnya, misalnya taluh, tabia, dan baas. `SampleDataSeeder` boleh dilewati. Isinya data contoh 14 hari dan akun demo pengepul, yang ditandai di layar dan bisa dihapus dengan `php artisan lapor:hapus-contoh`.
 
-**WhatsApp (Fonnte):** isi `LAPOR_WA_DRIVER=fonnte`, `FONNTE_TOKEN`, `FONNTE_DEVICE`, `LAPOR_WEBHOOK_SECRET`, lalu di Fonnte → Device → Webhook isi `https://<domain>/webhook/wa/<LAPOR_WEBHOOK_SECRET>`. Panduan server: `docs/DEPLOY.md`.
+Tanpa kunci AI, aplikasi tetap jalan memakai pembaca aturan. Tanpa token Fonnte (`LAPOR_WA_DRIVER=log`), balasan bot hanya dicatat di log, jadi coba lewat `/coba`. Tugas terjadwal butuh cron `* * * * * php artisan schedule:run`, yang menjalankan `lapor:ringkasan-pagi` jam 06.00 dan `lapor:rapikan` setiap 30 menit.
 
-## Alamat aplikasi dan akun demo
+Untuk WhatsApp sungguhan, isi `LAPOR_WA_DRIVER=fonnte`, `FONNTE_TOKEN`, `FONNTE_DEVICE`, dan `LAPOR_WEBHOOK_SECRET`, lalu di pengaturan webhook perangkat Fonnte isi `https://<domain>/webhook/wa/<LAPOR_WEBHOOK_SECRET>`. Panduan memasang di server ada di `docs/DEPLOY.md`.
 
-- **Aplikasi:** https://harlok.arisantika.tech
-- **Simulator peternak (tanpa login):** https://harlok.arisantika.tech/coba
-- **Akun demo pengepul dan koordinator:** dikirim lewat kanal/form panitia, tidak disimpan di repositori ini.
+## Alamat dan akun demo
 
-## Panduan penggunaan
+Aplikasi: https://harlok.arisantika.tech. Simulator peternak tanpa login: https://harlok.arisantika.tech/coba. Akun demo pengepul dan koordinator dikirim lewat kanal panitia dan tidak disimpan di repositori ini.
 
-**Peternak**
-1. Kirim `HARLOK` ke nomor Harlok. Nomor yang belum terdaftar hanya dilayani bila pesannya memuat kata kunci ini, sehingga chat pribadi lain ke nomor tersebut tidak dibalas bot.
-2. Jawab nama, pilih nomor wilayah dan komoditas.
-3. Setiap ada stok, kirim dengan bahasa sehari-hari, periksa ringkasannya, lalu balas `YA`.
-4. Saat ada tawaran, balas `1` (terima), `2` (tolak), atau `3` (tawar balik).
-5. Tanya apa saja soal harga, misalnya `harga cabai di Gianyar naik?`.
+## Cara memakai
 
-**Pengepul**
-1. Masuk di `/masuk`, buka **Cari Stok**, pilih komoditas, lalu klik titik di peta.
-2. Isi harga dan jumlah, lalu **Kirim tawaran**. Pantau di **Tawaran Saya**.
+Peternak mengirim `HARLOK` ke nomor Harlok. Nomor yang belum terdaftar hanya dilayani kalau pesannya memuat kata itu, supaya chat pribadi lain ke nomor tersebut tidak dibalas bot. Setelah menjawab nama, wilayah, dan komoditas, peternak tinggal mengirim stok setiap kali ada, memeriksa catatan dari bot, lalu membalas `YA`. Tawaran dijawab dengan `1`, `2`, atau `3`, dan pertanyaan soal harga boleh ditulis bebas.
 
-**Koordinator**
-1. Verifikasi peternak baru.
-2. Tinjau laporan janggal beserta penilaian AI, lalu **Tampilkan** atau **Tolak**.
-3. Pantau panel AI, kelola akun pengepul, mitra, dan token API.
+Pengepul masuk di `/masuk`, membuka Cari Stok, memilih komoditas, lalu mengklik titik di peta untuk mengirim tawaran. Perkembangannya bisa dilihat di Tawaran Saya.
+
+Koordinator memverifikasi peternak baru, meninjau laporan janggal beserta penilaian AI lalu memilih Tampilkan atau Tolak, dan mengelola akun pengepul, mitra, serta token API.
 
 ## API data harga
 
-Semua endpoint membutuhkan `Authorization: Bearer <token>` dari koordinator (izin `prices:read`, maks. 60 permintaan per menit). Dokumentasi: `/dokumentasi-api`.
+Setiap permintaan butuh `Authorization: Bearer <token>` yang dibuat koordinator. Token hanya bisa membaca harga (`prices:read`) dan dibatasi 60 permintaan per menit. Ada tiga endpoint:
 
-| Endpoint | Isi |
-|---|---|
-| `GET /api/v1/harga?komoditas=telur[&wilayah=tabanan]` | harga terbaru per wilayah |
-| `GET /api/v1/harga/riwayat?komoditas=telur&wilayah=tabanan&hari=30` | riwayat harian (maks. 90 hari) |
-| `GET /api/v1/komoditas`, `GET /api/v1/wilayah` | daftar kode |
+- `GET /api/v1/harga?komoditas=telur[&wilayah=tabanan]` untuk harga terbaru per wilayah,
+- `GET /api/v1/harga/riwayat?komoditas=telur&wilayah=tabanan&hari=30` untuk riwayat harian sampai 90 hari,
+- `GET /api/v1/komoditas` dan `GET /api/v1/wilayah` untuk daftar kodenya.
 
-API hanya mengeluarkan angka gabungan. Nama dan nomor peternak tidak pernah dibagikan.
+API hanya mengeluarkan angka gabungan. Nama dan nomor peternak tidak pernah ikut. Penjelasan lengkap ada di halaman `/dokumentasi-api`.
 
 ## Keamanan dan privasi
 
-- **Webhook:** alamat rahasia dicek dengan `hash_equals`, pesan grup dan ID privasi (`@lid`) diabaikan, pesan ganda ditolak, maksimal 12 pesan per menit per nomor.
-- **Integritas harga:** rentang harga wajar, penahanan laporan menyimpang dengan penilaian AI, hanya peternak terverifikasi yang dihitung, konfirmasi `YA` sebelum disimpan.
-- **Hak akses:** middleware peran (koordinator, pengepul, mitra). Pengepul hanya bisa mengubah tawarannya sendiri. Akun demo hanya bisa menawar stok contoh.
-- **Kendali peternak:** `STOP` menghentikan semua pesan, `KELUAR` menghapus data peternak beserta riwayat chatnya.
-- **Privasi:** papan publik, API, dan AI tidak menerima nama atau nomor peternak. Nomor peternak baru dibuka ke pembeli setelah sepakat.
-- **Web:** CSRF, validasi input, pembatasan percobaan login, header keamanan, keluaran di-*escape*. Rahasia hanya di `.env` (lihat `.env.example`).
-- **Jejak audit:** pendaftaran, laporan, verifikasi, tawaran, login, dan token tercatat bersama pelaku dan IP.
+Alamat webhook memakai rahasia yang dicek dengan `hash_equals`. Pesan dari grup dan ID privasi (`@lid`) diabaikan, pesan ganda ditolak, dan satu nomor dibatasi 12 pesan per menit.
+
+Supaya harga acuan tidak gampang dirusak, ada rentang harga wajar per komoditas, laporan menyimpang ditahan untuk dicek, hanya peternak terverifikasi yang dihitung, dan setiap laporan harus dikonfirmasi `YA` sebelum disimpan.
+
+Hak akses dibagi per peran: koordinator, pengepul, dan mitra. Pengepul hanya bisa mengubah tawarannya sendiri, dan akun demo hanya bisa menawar stok contoh. Peternak bisa menghentikan semua pesan dengan `STOP` atau menghapus datanya beserta riwayat chat dengan `KELUAR`. Halaman publik, API, dan AI tidak pernah menerima nama atau nomor peternak.
+
+Di sisi web ada CSRF, validasi input, pembatasan percobaan login, header keamanan, dan keluaran yang di-escape. Semua rahasia hanya disimpan di `.env` (contohnya di `.env.example`). Pendaftaran, laporan, verifikasi, tawaran, login, dan pembuatan token dicatat di jejak audit bersama pelaku dan alamat IP-nya.
 
 ## Pengujian
 
@@ -222,39 +159,30 @@ API hanya mengeluarkan angka gabungan. Nama dan nomor peternak tidak pernah diba
 php vendor/bin/pest
 ```
 
-89 tes otomatis (341 asersi), juga dijalankan GitHub Actions setiap push. Cakupannya meliputi pembacaan pesan, pendaftaran, STOP/KELUAR, alur tawaran, keamanan webhook, hak akses, kebocoran data, API, dan **18 tes AI** dengan respons AI tiruan: pemahaman pesan bahasa Bali, data pribadi tidak terkirim ke AI, cadangan saat AI gagal atau jawabannya tidak valid, AI tidak bisa menerima tawaran sendiri, kuota, penjaga harga, dan ringkasan pasar.
+Ada 89 tes otomatis dengan 341 asersi, dan semuanya juga dijalankan GitHub Actions setiap kali ada push. Tes ini mencakup pembacaan pesan, pendaftaran, STOP dan KELUAR, alur tawaran, keamanan webhook, hak akses, kebocoran data, dan API. Delapan belas di antaranya khusus untuk AI, memakai respons AI tiruan: memahami pesan berbahasa Bali, memastikan data pribadi tidak terkirim, kembali ke cadangan saat AI gagal atau jawabannya tidak valid, memastikan AI tidak bisa menerima tawaran sendiri, kuota, penjaga harga, dan ringkasan pasar.
 
-## Keterbatasan saat ini
+## Keterbatasan
 
-- Sebagian harga di papan masih **data contoh** untuk demonstrasi (ditandai di layar). Pengguna nyata masih sedikit.
-- AI memakai API pihak ketiga yang berbayar per pemakaian dan butuh koneksi. Saat AI tidak tersedia, bot kembali ke pembaca pola yang lebih kaku.
-- Pemahaman bahasa Bali terbatas pada kosakata perdagangan umum dan belum diuji luas dengan banyak peternak.
-- Pesan suara dan foto belum dibaca. Hanya teks.
-- Gateway WhatsApp memakai Fonnte (bukan WhatsApp Business API resmi), sehingga ada batas pesan dan risiko pemblokiran nomor.
-- Cakupan baru 14 wilayah (Bali dan DI Yogyakarta) dan 5 komoditas. Verifikasi peternak masih manual oleh koordinator.
-- Ringkasan pasar hanya merangkum data yang ada, bukan meramal harga.
+Sebagian harga di halaman depan masih data contoh untuk demonstrasi dan ditandai di layar. Pengguna nyatanya masih sedikit.
+
+AI memakai layanan pihak ketiga yang dibayar per pemakaian dan butuh koneksi. Kalau AI tidak tersedia, bot kembali ke pembaca aturan yang lebih kaku. Pemahaman bahasa Bali baru sebatas kosakata jual beli sehari-hari dan belum diuji dengan banyak peternak. Pesan suara dan foto belum bisa dibaca. Ringkasan pasar hanya merangkum data yang ada, bukan meramal harga.
+
+Gateway WhatsApp-nya Fonnte, bukan WhatsApp Business API resmi, jadi ada batas jumlah pesan dan risiko nomor diblokir. Wilayahnya baru 14 kabupaten/kota di Bali dan DI Yogyakarta dengan 5 komoditas, dan verifikasi peternak masih dilakukan manual oleh koordinator.
 
 ## Sumber pihak ketiga
 
-| Sumber | Lisensi | Kegunaan |
-|---|---|---|
-| Laravel 13, Laravel Sanctum | MIT | kerangka backend, token API |
-| Anthropic PHP SDK | MIT | panggilan Claude API |
-| Alpine.js, Tailwind CSS, Vite | MIT | antarmuka dan build |
-| Leaflet | BSD-2-Clause | peta |
-| OpenStreetMap | ODbL | ubin peta (© kontributor OpenStreetMap) |
-| Chart.js | MIT | grafik harga |
-| Pest, Pint | MIT | pengujian dan format kode |
-| Bricolage Grotesque, Public Sans (lewat Bunny Fonts) | SIL OFL 1.1 | huruf |
-| Fonnte | layanan berbayar | gateway WhatsApp |
-| Claude API (Anthropic) / DeepSeek API | layanan berbayar | model AI di dalam produk |
+- Laravel 13 dan Laravel Sanctum (MIT) untuk backend dan token API
+- Anthropic PHP SDK (MIT) untuk memanggil Claude API
+- Alpine.js, Tailwind CSS, dan Vite (MIT) untuk antarmuka dan build
+- Leaflet (BSD-2-Clause) untuk peta, dengan ubin © kontributor OpenStreetMap (ODbL)
+- Chart.js (MIT) untuk grafik harga
+- Pest dan Pint (MIT) untuk pengujian dan format kode
+- Huruf Atkinson Hyperlegible (SIL OFL 1.1) lewat Bunny Fonts
+- Fonnte (layanan berbayar) sebagai gateway WhatsApp
+- Claude API dari Anthropic atau DeepSeek API (layanan berbayar) sebagai model AI
 
-Seluruh data harga berasal dari laporan pengguna Harlok dan data contoh buatan sendiri. Tidak ada dataset pihak ketiga.
+Semua data harga berasal dari laporan pengguna Harlok dan data contoh yang dibuat sendiri. Tidak ada dataset pihak ketiga.
 
 ## Tim
 
-| Nama | Peran |
-|---|---|
-| I Dewa Made Arisantika | Pengembang tunggal: riset masalah, desain produk, backend, frontend, integrasi AI dan WhatsApp, deploy |
-
-Pengembangan dibantu asisten AI untuk menulis kode (Claude Code dan Gemini). Rinciannya ada di [docs/DISCLOSURE.md](docs/DISCLOSURE.md).
+Harlok dikerjakan sendiri oleh I Dewa Made Arisantika, mulai dari riset masalah, desain produk, backend, frontend, integrasi AI dan WhatsApp, sampai deploy. Selama pengembangan saya dibantu asisten AI untuk menulis kode (Claude Code dan Gemini). Rinciannya ada di [docs/DISCLOSURE.md](docs/DISCLOSURE.md).

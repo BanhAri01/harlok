@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Log WhatsApp'])
 
 @section('content')
-<div class="mx-auto max-w-7xl px-4 py-8">
+<div class="mx-auto max-w-6xl px-4 py-8">
     @include('admin._nav', ['heading' => 'Log WhatsApp', 'sub' => '50 pesan terakhir dari dan ke nomor WhatsApp asli.'])
 
     <form method="GET" class="mt-6 flex gap-2">
@@ -13,7 +13,7 @@
     <div class="mt-4 grid gap-6 lg:grid-cols-2">
         @foreach (['Masuk' => $inbound, 'Keluar' => $outbound] as $heading => $messages)
             <section class="panel">
-                <h2 class="border-b border-garis px-5 py-3 font-display text-lg font-bold">{{ $heading }}</h2>
+                <h2 class="border-b border-garis px-5 py-3 text-lg font-bold">{{ $heading }}</h2>
                 <ul class="max-h-[40rem] divide-y divide-garis overflow-y-auto">
                     @forelse ($messages as $message)
                         <li class="px-5 py-3 text-sm">

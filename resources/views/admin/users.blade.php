@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Pengepul & Mitra API'])
 
 @section('content')
-<div class="mx-auto max-w-7xl px-4 py-8">
+<div class="mx-auto max-w-6xl px-4 py-8">
     @include('admin._nav', ['heading' => 'Pengepul & mitra API', 'sub' => 'Pengepul menawar lewat web. Mitra API (dinas, koperasi, aplikasi lain) hanya membaca data harga gabungan.'])
 
     <div class="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
@@ -15,7 +15,7 @@
                         <tr>
                             <td class="px-4 py-3">
                                 <p class="font-semibold">{{ $user->displayName() }} @if ($user->is_demo)<span class="ml-1 rounded bg-kuning-muda px-1.5 text-xs">demo</span>@endif</p>
-                                <p class="text-tinta/60">{{ $user->email }}{{ $user->phone ? ' · '.\App\Support\Phone::display($user->phone) : '' }}</p>
+                                <p class="text-tinta/60">{{ $user->email }}{{ $user->phone ? ', '.\App\Support\Phone::display($user->phone) : '' }}</p>
                             </td>
                             <td class="px-4 py-3">{{ ['admin' => 'Koordinator', 'buyer' => 'Pengepul', 'partner' => 'Mitra API'][$user->role] }}</td>
                             <td class="px-4 py-3">{{ $user->region?->name ?? '—' }}</td>
@@ -38,7 +38,7 @@
 
         <form method="POST" action="{{ route('admin.users.store') }}" class="panel space-y-4 p-5">
             @csrf
-            <h2 class="font-display text-lg font-bold">Tambah akun</h2>
+            <h2 class="text-lg font-bold">Tambah akun</h2>
             <div>
                 <label for="role" class="label">Peran</label>
                 <select id="role" name="role" class="input">

@@ -1,12 +1,12 @@
 @extends('layouts.app', ['title' => 'Cari Stok'])
 
 @section('content')
-<div class="mx-auto max-w-7xl px-4 py-8"
+<div class="mx-auto max-w-6xl px-4 py-8"
     x-data="papan({ url: @js(route('buyer.data')), commodity: @js($commodity->slug), buyer: true, offerUrlTemplate: @js(route('buyer.offer', ['report' => '__ID__'])), focus: @js($focus) })">
 
     <div class="flex flex-wrap items-end gap-4">
         <div>
-            <h1 class="font-display text-3xl font-extrabold tracking-tight">Cari stok</h1>
+            <h1 class="text-3xl font-bold">Cari stok</h1>
             <p class="mt-1 text-tinta/70">Klik titik di peta atau baris di daftar untuk menawar. Tawaran langsung dikirim ke WhatsApp peternak.</p>
         </div>
         <div class="ml-auto flex flex-wrap gap-1" role="tablist" aria-label="Komoditas">
@@ -38,9 +38,9 @@
                     <div>
                         <div class="flex items-start gap-3">
                             <div>
-                                <p class="text-sm text-tinta/60" x-text="selected.region + (selected.farmer ? ' · ' + selected.farmer : '')"></p>
-                                <p class="angka text-3xl font-extrabold" x-text="rupiah(selected.price) + '/kg'"></p>
-                                <p class="text-tinta/70" x-text="kg(selected.quantity_kg) + ' tersedia · ' + selected.ago"></p>
+                                <p class="text-sm text-tinta/60" x-text="selected.region + (selected.farmer ? ', ' + selected.farmer : '')"></p>
+                                <p class="angka text-3xl font-bold" x-text="rupiah(selected.price) + '/kg'"></p>
+                                <p class="text-tinta/70" x-text="kg(selected.quantity_kg) + ' tersedia, ' + selected.ago"></p>
                             </div>
                             <button type="button" @click="selected = null" class="ml-auto rounded-md px-2 py-1 text-sm text-tinta/60 hover:bg-kertas" aria-label="Tutup">✕</button>
                         </div>
@@ -75,15 +75,15 @@
             </div>
 
             <div class="panel">
-                <h2 class="border-b border-garis px-5 py-3 font-display text-lg font-bold">Stok terbaru</h2>
+                <h2 class="border-b border-garis px-5 py-3 text-lg font-bold">Stok terbaru</h2>
                 <ul class="max-h-[28rem] divide-y divide-garis overflow-y-auto">
                     <template x-for="point in data?.points ?? []" :key="point.id">
                         <li>
                             <button type="button" @click="select(point, true)" class="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-kertas" :class="selected?.id === point.id && 'bg-kertas'">
                                 <span class="titik-stok inline-block shrink-0" :style="'background:' + colorFor(point)"></span>
                                 <span class="min-w-0 flex-1">
-                                    <span class="block font-semibold" x-text="point.region + (point.farmer ? ' · ' + point.farmer : '')"></span>
-                                    <span class="block text-sm text-tinta/60" x-text="kg(point.quantity_kg) + ' · ' + point.ago"></span>
+                                    <span class="block font-semibold" x-text="point.region + (point.farmer ? ', ' + point.farmer : '')"></span>
+                                    <span class="block text-sm text-tinta/60" x-text="kg(point.quantity_kg) + ', ' + point.ago"></span>
                                 </span>
                                 <span class="angka font-bold" x-text="rupiah(point.price)"></span>
                             </button>

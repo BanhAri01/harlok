@@ -9,10 +9,10 @@ use App\Services\PriceBoard;
 it('mendaftarkan peternak baru lewat tiga balasan', function () {
     $phone = '6281299990001';
 
-    expect(chat($phone, 'halo')[0])->toContain('Siapa nama');
-    expect(chat($phone, 'made sukarta')[0])->toContain('Lokasi');
-    expect(chat($phone, '9')[0])->toContain('Komoditas');
-    expect(chat($phone, '1')[0])->toContain('Terdaftar');
+    expect(chat($phone, 'halo')[0])->toContain('namanya siapa');
+    expect(chat($phone, 'made sukarta')[0])->toContain('Kandang atau kebunnya');
+    expect(chat($phone, '9')[0])->toContain('paling sering dijual');
+    expect(chat($phone, '1')[0])->toContain('Sudah terdaftar');
 
     $farmer = Farmer::query()->where('phone', $phone)->firstOrFail();
     expect($farmer->name)->toBe('Made Sukarta')
@@ -43,7 +43,7 @@ it('membandingkan harga laporan dengan rata-rata wilayah', function () {
     $farmer = farmer();
     $reply = chat($farmer->phone, 'telur 1 ton 25.650', 'ya')[0];
 
-    expect($reply)->toContain('Rata-rata Tabanan: Rp27.000')->toContain('5,0% di bawah');
+    expect($reply)->toContain('Rata-rata di Tabanan Rp27.000')->toContain('5,0% di bawah');
 });
 
 it('tidak menghitung harga dari peternak yang belum terverifikasi', function () {
@@ -51,7 +51,7 @@ it('tidak menghitung harga dari peternak yang belum terverifikasi', function () 
 
     $reply = chat($farmer->phone, 'telur 1 ton 26rb', 'ya')[0];
 
-    expect($reply)->toContain('belum diverifikasi')
+    expect($reply)->toContain('belum dicek koordinator')
         ->and(StockReport::query()->sole()->status)->toBe(StockReport::CONFIRMED)
         ->and(DailyPrice::query()->count())->toBe(0);
 });
@@ -72,7 +72,7 @@ it('menahan laporan yang harganya jauh dari pasar untuk dicek koordinator', func
 it('menolak harga yang tidak masuk akal sebelum disimpan', function () {
     $farmer = farmer();
 
-    expect(chat($farmer->phone, 'telur 1 ton 260rb')[0])->toContain('tidak wajar');
+    expect(chat($farmer->phone, 'telur 1 ton 260rb')[0])->toContain('salah ketik');
     expect(StockReport::query()->count())->toBe(0);
 });
 
@@ -100,9 +100,9 @@ it('menjawab perintah harga, stok, habis, dan langganan', function () {
     stock($farmer, 26000);
     app(PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
 
-    expect(chat($farmer->phone, 'harga')[0])->toContain('Tabanan: Rp26.000');
+    expect(chat($farmer->phone, 'harga')[0])->toContain('Tabanan Rp26.000');
     expect(chat($farmer->phone, 'stok')[0])->toContain('1.000 kg');
-    expect(chat($farmer->phone, 'habis')[0])->toContain('ditandai sudah habis');
+    expect(chat($farmer->phone, 'habis')[0])->toContain('sudah ditandai habis');
     expect(StockReport::query()->available()->count())->toBe(0);
 
     chat($farmer->phone, 'mulai');
@@ -114,6 +114,6 @@ it('menjawab perintah harga, stok, habis, dan langganan', function () {
 it('meminta format contoh bila pesan tidak dipahami', function () {
     $farmer = farmer();
 
-    expect(chat($farmer->phone, 'apa kabar')[0])->toContain('belum saya pahami');
+    expect(chat($farmer->phone, 'apa kabar')[0])->toContain('belum paham maksudnya');
     expect(chat($farmer->phone, 'telur 2 ton')[0])->toContain('harga');
 });

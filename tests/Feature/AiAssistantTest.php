@@ -33,7 +33,7 @@ it('AI memahami laporan berbahasa Bali tanpa mengirim nama atau nomor peternak',
     $farmer = farmer(['name' => 'Wayan Rahasia']);
     fakeAi(intent('lapor_stok', ['commodity' => 'telur', 'quantity' => 2, 'quantity_unit' => 'ton', 'price' => 26000, 'price_unit' => 'kg']));
 
-    expect(chat($farmer->phone, 'taluh 2 ton 26 tali, siap kirim')[0])->toContain('Mohon cek')->toContain('2.000 kg');
+    expect(chat($farmer->phone, 'taluh 2 ton 26 tali, siap kirim')[0])->toContain('Saya catat begini')->toContain('2.000 kg');
 
     expect(StockReport::query()->sole()->parsed_by)->toBe('ai')
         ->and(AiCall::query()->sole()->status)->toBe(AiCall::OK);
@@ -49,8 +49,8 @@ it('AI menjawab pertanyaan pasar dengan penanda AI dan tanpa tautan', function (
 
     $reply = chat($farmer->phone, 'gimana harga telur minggu ini, bagus jual sekarang?')[0];
 
-    expect($reply)->toStartWith('🤖 Harga telur di Tabanan stabil')
-        ->toContain('Dijawab AI')
+    expect($reply)->toStartWith('Harga telur di Tabanan stabil')
+        ->toContain('Jawaban ini dibuat AI')
         ->not->toContain('https://');
 });
 
@@ -59,7 +59,7 @@ it('bila AI gagal, bot tetap jalan memakai pembaca aturan', function () {
     config(['lapor.ai.driver' => 'openai', 'lapor.ai.api_key' => 'kunci-uji', 'lapor.ai.base_url' => 'https://ai.contoh.test/v1']);
     Http::fake(['ai.contoh.test/*' => Http::response(['error' => ['message' => 'server sibuk']], 503)]);
 
-    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek');
+    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Saya catat begini');
 
     expect(StockReport::query()->sole()->parsed_by)->not->toBe('ai')
         ->and(AiCall::query()->sole())->status->toBe(AiCall::FAILED)->error->toContain('503');
@@ -69,7 +69,7 @@ it('jawaban AI yang tidak sesuai skema ditolak lalu memakai pembaca aturan', fun
     $farmer = farmer();
     fakeAi(['intent' => 'hapus_semua_data', 'commodity' => null]);
 
-    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek')
+    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Saya catat begini')
         ->and(AiCall::query()->sole()->status)->toBe(AiCall::INVALID);
 });
 
@@ -79,7 +79,7 @@ it('AI tidak pernah menerima tawaran sendiri; peternak tetap harus membalas 1', 
     $offer = Offer::query()->create(['stock_report_id' => $report->id, 'buyer_id' => buyer()->id, 'price_per_kg' => 25500, 'quantity_kg' => 500, 'status' => Offer::SENT]);
     fakeAi(intent('terima_tawaran'));
 
-    expect(chat($farmer->phone, 'oke deh sy ambil yg td')[0])->toContain('Untuk menerima, balas *1*')
+    expect(chat($farmer->phone, 'oke deh sy ambil yg td')[0])->toContain('Kalau mau diterima, balas *1*')
         ->and($offer->refresh()->status)->toBe(Offer::SENT);
 
     chat($farmer->phone, '1');
@@ -109,7 +109,7 @@ it('kuota AI habis membuat bot memakai pembaca aturan tanpa memanggil AI', funct
     config(['lapor.ai.daily_global' => 1]);
     RateLimiter::hit('ai:semua', 86400);
 
-    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek');
+    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Saya catat begini');
 
     Http::assertNothingSent();
     expect(AiCall::query()->sole()->status)->toBe(AiCall::SKIPPED);
@@ -130,7 +130,7 @@ it('tanpa kunci AI, bot memakai pembaca aturan dan tidak mencatat panggilan AI',
     $farmer = farmer();
     Http::fake();
 
-    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek')
+    expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Saya catat begini')
         ->and(AiCall::query()->count())->toBe(0);
 
     Http::assertNothingSent();
@@ -148,7 +148,7 @@ it('penjaga harga AI menjelaskan laporan janggal ke koordinator dan memberi sara
     chat($farmer->phone, 'taluh 1 ton 36rb');
     $reply = chat($farmer->phone, 'ya')[0];
 
-    expect($reply)->toContain('jauh dari rata-rata')->toContain('🤖 Harga Anda jauh di atas pasar')->toContain('Rp26.000/kg, kirim ulang');
+    expect($reply)->toContain('jauh dari rata-rata')->toContain('Harga Anda jauh di atas pasar')->toContain('Rp26.000/kg, kirim ulang');
 
     $report = StockReport::query()->where('farmer_id', $farmer->id)->sole();
     expect($report->status)->toBe(StockReport::FLAGGED)
@@ -167,7 +167,7 @@ it('laporan janggal tetap masuk antrean koordinator walau penjaga harga AI gagal
     Http::fake(['ai.contoh.test/*' => Http::response([], 500)]);
 
     chat($farmer->phone, 'telur 1 ton 36rb');
-    expect(chat($farmer->phone, 'ya')[0])->toContain('Koordinator akan mengecek')->not->toContain('🤖');
+    expect(chat($farmer->phone, 'ya')[0])->toContain('Koordinator akan mengecek')->not->toContain('mungkin salah ketik');
 
     expect(StockReport::query()->where('farmer_id', $farmer->id)->sole())->status->toBe(StockReport::FLAGGED)->ai_verdict->toBeNull();
 });
@@ -230,7 +230,7 @@ it('perintah HARGA di WhatsApp menyertakan ringkasan AI', function () {
     $farmer = farmer();
     fakeAi(['summary' => 'Harga telur naik tipis di Gianyar.', 'direction' => 'naik']);
 
-    expect(chat($farmer->phone, 'harga')[0])->toContain('📊 *Harga Telur Ayam Ras*')->toContain('🤖 Harga telur naik tipis di Gianyar.');
+    expect(chat($farmer->phone, 'harga')[0])->toContain('Harga Telur Ayam Ras per kg')->toContain('Harga telur naik tipis di Gianyar. (ringkasan AI)');
 });
 
 it('dasbor koordinator memantau keandalan AI tanpa menampilkan isi pesan', function () {

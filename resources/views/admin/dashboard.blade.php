@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Koordinator'])
 
 @section('content')
-<div class="mx-auto max-w-7xl px-4 py-8">
+<div class="mx-auto max-w-6xl px-4 py-8">
     @include('admin._nav', ['heading' => 'Ringkasan koordinator', 'sub' => 'Verifikasi pelapor dan cek laporan yang harganya janggal.'])
 
     <dl class="mt-6 grid grid-cols-2 gap-3 md:grid-cols-6">
@@ -22,7 +22,7 @@
 
     <section class="panel mt-6 p-5">
         <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h2 class="font-display text-lg font-bold">Asisten AI, 7 hari terakhir</h2>
+            <h2 class="text-lg font-bold">Asisten AI, 7 hari terakhir</h2>
             <span @class(['rounded-full px-2.5 py-0.5 text-xs font-semibold', 'bg-naik/15 text-naik' => $ai['active'], 'bg-tinta/10 text-tinta/60' => ! $ai['active']])>
                 {{ $ai['active'] ? 'Aktif: '.$ai['provider'] : 'Belum aktif, bot memakai pembaca aturan' }}
             </span>
@@ -45,17 +45,17 @@
 
     <div class="mt-8 grid gap-6 lg:grid-cols-2">
         <section class="panel">
-            <h2 class="border-b border-garis px-5 py-3 font-display text-lg font-bold">Laporan janggal ({{ $flagged->count() }})</h2>
+            <h2 class="border-b border-garis px-5 py-3 text-lg font-bold">Laporan janggal ({{ $flagged->count() }})</h2>
             <ul class="divide-y divide-garis">
                 @forelse ($flagged as $report)
                     <li class="px-5 py-4">
-                        <p class="font-semibold">{{ $report->farmer->name }} · {{ $report->region->name }}</p>
-                        <p class="text-sm text-tinta/70">{{ $report->commodity->name }} {{ \App\Support\Rupiah::kg($report->quantity_kg) }} @ <strong>{{ \App\Support\Rupiah::format($report->price_per_kg) }}/kg</strong></p>
+                        <p class="font-semibold">{{ $report->farmer->name }}, {{ $report->region->name }}</p>
+                        <p class="text-sm text-tinta/70">{{ $report->commodity->name }} {{ \App\Support\Rupiah::kg($report->quantity_kg) }}, <strong>{{ \App\Support\Rupiah::format($report->price_per_kg) }}/kg</strong></p>
                         <p class="text-sm text-turun">{{ $report->flag_reason }}</p>
                         @if ($report->ai_note)
                             <p class="mt-2 rounded-lg bg-tinta/5 px-3 py-2 text-sm"><span class="font-semibold">Penilaian AI, {{ str_replace('_', ' ', $report->ai_verdict) }}:</span> {{ $report->ai_note }}</p>
                         @endif
-                        <p class="mt-1 text-xs text-tinta/50">Pesan asli: "{{ $report->raw_text }}" · {{ $report->confirmed_at?->diffForHumans() }}</p>
+                        <p class="mt-1 text-xs text-tinta/50">Pesan asli "{{ $report->raw_text }}", {{ $report->confirmed_at?->diffForHumans() }}</p>
                         <div class="mt-3 flex gap-2">
                             <form method="POST" action="{{ route('admin.reports.approve', $report) }}">@csrf<button class="btn-gelap">Tampilkan</button></form>
                             <form method="POST" action="{{ route('admin.reports.reject', $report) }}">@csrf<button class="btn-garis">Tolak</button></form>
@@ -68,13 +68,13 @@
         </section>
 
         <section class="panel">
-            <h2 class="border-b border-garis px-5 py-3 font-display text-lg font-bold">Menunggu verifikasi</h2>
+            <h2 class="border-b border-garis px-5 py-3 text-lg font-bold">Menunggu verifikasi</h2>
             <ul class="divide-y divide-garis">
                 @forelse ($unverified as $farmer)
                     <li class="flex items-center gap-3 px-5 py-3">
                         <div class="min-w-0 flex-1">
                             <p class="font-semibold">{{ $farmer->name }}</p>
-                            <p class="text-sm text-tinta/60">{{ $farmer->region->name }} · {{ \App\Support\Phone::display($farmer->phone) }} · daftar {{ $farmer->created_at->diffForHumans() }}</p>
+                            <p class="text-sm text-tinta/60">{{ $farmer->region->name }}, {{ \App\Support\Phone::display($farmer->phone) }}, daftar {{ $farmer->created_at->diffForHumans() }}</p>
                         </div>
                         <form method="POST" action="{{ route('admin.farmers.verify', $farmer) }}">
                             @csrf
