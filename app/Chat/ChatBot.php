@@ -305,15 +305,25 @@ _Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
         $result = $this->reports->confirm($report);
         $conversation->reset();
 
-        return [$this->confirmationMessage($report->refresh(), $farmer, $result['market'], $result['deviation'])];
+        return [$this->confirmationMessage($report->refresh(), $farmer, $result['market'], $result['deviation'], $result['review'])];
     }
 
-    private function confirmationMessage(StockReport $report, Farmer $farmer, ?array $market, ?float $deviation): string
+    private function confirmationMessage(StockReport $report, Farmer $farmer, ?array $market, ?float $deviation, ?array $review): string
     {
         $region = $report->region->name;
 
         if ($report->status === StockReport::FLAGGED) {
-            return "⏳ Laporan diterima, tapi harganya jauh dari rata-rata {$region} (".Rupiah::format($market['price'])."/kg).\nKoordinator akan mengecek dulu sebelum tampil ke pengepul.";
+            $message = "⏳ Laporan diterima, tapi harganya jauh dari rata-rata {$region} (".Rupiah::format($market['price'])."/kg).\nKoordinator akan mengecek dulu sebelum tampil ke pengepul.";
+
+            if ($review['farmer_hint'] ?? null) {
+                $message .= "\n\n🤖 {$review['farmer_hint']}";
+            }
+
+            if ($review['suggested_price'] ?? null) {
+                $message .= "\nBila maksud Anda ".Rupiah::format($review['suggested_price']).'/kg, kirim ulang laporannya. Laporan baru menggantikan yang ini.';
+            }
+
+            return $message;
         }
 
         $lines = ["✅ *Tersimpan* & tampil ke pengepul di {$region}."];

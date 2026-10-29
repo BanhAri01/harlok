@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReportService
 {
-    public function __construct(private PriceBoard $prices, private Messenger $messenger) {}
+    public function __construct(private PriceBoard $prices, private Messenger $messenger, private AiPriceGuard $guard) {}
 
     public function createPending(Farmer $farmer, ParsedReport $parsed, string $rawText): StockReport
     {
@@ -54,6 +54,13 @@ class ReportService
                 ->whereKeyNot($report->id)
                 ->update(['status' => StockReport::CLOSED, 'closed_at' => now()]);
 
+            StockReport::query()
+                ->where('farmer_id', $report->farmer_id)
+                ->where('commodity_id', $report->commodity_id)
+                ->where('status', StockReport::FLAGGED)
+                ->whereKeyNot($report->id)
+                ->update(['status' => StockReport::CANCELLED, 'closed_at' => now()]);
+
             $flagged = $deviation !== null && abs($deviation) > $outlier;
 
             $report->forceFill([
@@ -74,7 +81,11 @@ class ReportService
             $this->notifyBuyers($report);
         }
 
-        return ['market' => $market, 'deviation' => $deviation];
+        return [
+            'market' => $market,
+            'deviation' => $deviation,
+            'review' => $report->status === StockReport::FLAGGED ? $this->guard->review($report, $market) : null,
+        ];
     }
 
     public function approve(StockReport $report, User $admin): void

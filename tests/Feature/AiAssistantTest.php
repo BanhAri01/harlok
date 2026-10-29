@@ -134,3 +134,52 @@ it('tanpa kunci AI, bot memakai pembaca aturan dan tidak mencatat panggilan AI',
 
     Http::assertNothingSent();
 });
+
+it('penjaga harga AI menjelaskan laporan janggal ke koordinator dan memberi saran ke peternak', function () {
+    $other = farmer();
+    stock($other, 26000);
+    $farmer = farmer();
+    fakeAi(
+        intent('lapor_stok', ['commodity' => 'telur', 'quantity' => 1, 'quantity_unit' => 'ton', 'price' => 36000, 'price_unit' => 'kg']),
+        ['verdict' => 'salah_ketik', 'suggested_price' => 26000, 'note' => 'Rp36.000 jauh di atas rata-rata Tabanan Rp26.000; kemungkinan angka 2 tertulis 3.', 'farmer_hint' => 'Harga Anda jauh di atas pasar, mungkin salah ketik.'],
+    );
+
+    chat($farmer->phone, 'taluh 1 ton 36rb');
+    $reply = chat($farmer->phone, 'ya')[0];
+
+    expect($reply)->toContain('jauh dari rata-rata')->toContain('🤖 Harga Anda jauh di atas pasar')->toContain('Rp26.000/kg, kirim ulang');
+
+    $report = StockReport::query()->where('farmer_id', $farmer->id)->sole();
+    expect($report->status)->toBe(StockReport::FLAGGED)
+        ->and($report->ai_verdict)->toBe('salah_ketik')
+        ->and($report->ai_note)->toContain('Dugaan harga: Rp26.000/kg');
+
+    Http::assertSent(fn (Request $request) => str_contains($request->body(), 'penjaga') || str_contains($request->body(), 'koordinator Harlok'));
+    $this->actingAs(admin())->get(route('admin.dashboard'))->assertSee('Penilaian AI, salah ketik');
+});
+
+it('laporan janggal tetap masuk antrean koordinator walau penjaga harga AI gagal', function () {
+    $other = farmer();
+    stock($other, 26000);
+    $farmer = farmer();
+    config(['lapor.ai.driver' => 'openai', 'lapor.ai.api_key' => 'kunci-uji', 'lapor.ai.base_url' => 'https://ai.contoh.test/v1']);
+    Http::fake(['ai.contoh.test/*' => Http::response([], 500)]);
+
+    chat($farmer->phone, 'telur 1 ton 36rb');
+    expect(chat($farmer->phone, 'ya')[0])->toContain('Koordinator akan mengecek')->not->toContain('🤖');
+
+    expect(StockReport::query()->where('farmer_id', $farmer->id)->sole())->status->toBe(StockReport::FLAGGED)->ai_verdict->toBeNull();
+});
+
+it('laporan ulang menggantikan laporan janggal sebelumnya', function () {
+    $other = farmer();
+    stock($other, 26000);
+    $farmer = farmer();
+
+    chat($farmer->phone, 'telur 1 ton 36rb');
+    chat($farmer->phone, 'ya');
+    chat($farmer->phone, 'telur 1 ton 26rb');
+    chat($farmer->phone, 'ya');
+
+    expect(StockReport::query()->where('farmer_id', $farmer->id)->pluck('status')->all())->toBe([StockReport::CANCELLED, StockReport::CONFIRMED]);
+});

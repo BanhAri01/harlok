@@ -29,6 +29,9 @@
                         <p class="font-semibold">{{ $report->farmer->name }} · {{ $report->region->name }}</p>
                         <p class="text-sm text-tinta/70">{{ $report->commodity->name }} {{ \App\Support\Rupiah::kg($report->quantity_kg) }} @ <strong>{{ \App\Support\Rupiah::format($report->price_per_kg) }}/kg</strong></p>
                         <p class="text-sm text-turun">{{ $report->flag_reason }}</p>
+                        @if ($report->ai_note)
+                            <p class="mt-2 rounded-lg bg-tinta/5 px-3 py-2 text-sm"><span class="font-semibold">Penilaian AI, {{ str_replace('_', ' ', $report->ai_verdict) }}:</span> {{ $report->ai_note }}</p>
+                        @endif
                         <p class="mt-1 text-xs text-tinta/50">Pesan asli: "{{ $report->raw_text }}" · {{ $report->confirmed_at?->diffForHumans() }}</p>
                         <div class="mt-3 flex gap-2">
                             <form method="POST" action="{{ route('admin.reports.approve', $report) }}">@csrf<button class="btn-gelap">Tampilkan</button></form>
