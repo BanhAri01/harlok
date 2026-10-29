@@ -15,7 +15,7 @@ Route::get('/dokumentasi-api', [BoardController::class, 'apiDocs'])->name('api.d
 Route::get('/widget/harga', [OpenDataController::class, 'widget'])->middleware('throttle:120,1')->name('widget.prices');
 Route::get('/data/harga.csv', [OpenDataController::class, 'csv'])->middleware('throttle:20,1')->name('open-data.csv');
 
-Route::post('/webhook/wa/{secret}', WhatsAppWebhookController::class)->middleware('throttle:240,1')->name('webhooks.wa');
+Route::post('/webhook/wa/{secret}', WhatsAppWebhookController::class)->middleware('throttle:wa-webhook')->name('webhooks.wa');
 
 Route::middleware('simulator')->prefix('coba')->name('simulator.')->group(function () {
     Route::get('/', [SimulatorController::class, 'show'])->name('show');
@@ -36,8 +36,8 @@ Route::middleware(['auth', 'role:buyer,admin'])->prefix('pengepul')->name('buyer
     Route::get('/data', [BuyerController::class, 'data'])->middleware('throttle:60,1')->name('data');
     Route::post('/stok/{report}/tawar', [BuyerController::class, 'offer'])->middleware('throttle:20,1')->name('offer');
     Route::get('/tawaran', [BuyerController::class, 'offers'])->name('offers');
-    Route::post('/tawaran/{offer}/terima', [BuyerController::class, 'acceptCounter'])->name('offers.accept');
-    Route::post('/tawaran/{offer}/batal', [BuyerController::class, 'cancel'])->name('offers.cancel');
+    Route::post('/tawaran/{offer}/terima', [BuyerController::class, 'acceptCounter'])->middleware('throttle:20,1')->name('offers.accept');
+    Route::post('/tawaran/{offer}/batal', [BuyerController::class, 'cancel'])->middleware('throttle:20,1')->name('offers.cancel');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {

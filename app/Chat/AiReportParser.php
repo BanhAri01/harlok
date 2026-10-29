@@ -5,6 +5,7 @@ namespace App\Chat;
 use Anthropic\Client;
 use App\Models\Commodity;
 use App\Models\Region;
+use App\Support\Phone;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -25,11 +26,20 @@ class AiReportParser
             return null;
         }
 
-        $key = 'ai-parse:'.$phone;
-        if (RateLimiter::tooManyAttempts($key, (int) config('lapor.ai.daily_per_phone'))) {
-            return null;
+        $budgets = ['ai-parse:'.$phone => (int) config('lapor.ai.daily_per_phone'), 'ai-parse:semua' => (int) config('lapor.ai.daily_global')];
+        if (Phone::channel($phone) !== 'wa') {
+            $budgets['ai-parse:simulator'] = (int) config('lapor.ai.daily_simulator');
         }
-        RateLimiter::hit($key, 86400);
+
+        foreach ($budgets as $key => $limit) {
+            if (RateLimiter::tooManyAttempts($key, $limit)) {
+                return null;
+            }
+        }
+
+        foreach (array_keys($budgets) as $key) {
+            RateLimiter::hit($key, 86400);
+        }
 
         try {
             $fields = $this->extract($text);

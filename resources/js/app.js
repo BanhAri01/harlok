@@ -125,7 +125,7 @@ Alpine.data('papan', ({ url, commodity, buyer = false, offerUrlTemplate = null, 
     },
 
     popup(point) {
-        const label = point.sample ? '<span style="color:#8A968D">data contoh</span>' : (point.verified ? '✔ terverifikasi' : 'belum terverifikasi');
+        const label = point.sample ? `<span style="color:#8A968D">${point.source === 'simulator' ? 'dari simulator' : 'data contoh'}</span>` : (point.verified ? '✔ terverifikasi' : 'belum terverifikasi');
         return `<div style="min-width:170px">
             <div style="font-weight:700;font-size:15px">${escapeHtml(rupiah(point.price))}/kg</div>
             <div>${escapeHtml(kg(point.quantity_kg))} · ${escapeHtml(point.region)}</div>

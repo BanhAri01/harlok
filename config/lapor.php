@@ -16,19 +16,24 @@ return [
         'model' => env('LAPOR_AI_MODEL', 'claude-haiku-5-5'),
         'timeout' => 20,
         'daily_per_phone' => 30,
+        'daily_simulator' => (int) env('LAPOR_AI_DAILY_SIMULATOR', 60),
+        'daily_global' => (int) env('LAPOR_AI_DAILY_GLOBAL', 500),
     ],
 
     'simulator' => [
         'enabled' => (bool) env('LAPOR_SIMULATOR', true),
         'per_minute' => 20,
+        'keep_days' => 2,
     ],
 
     'market' => [
         'confirm_minutes' => 30,
+        'max_quantity_kg' => 100000,
         'report_active_days' => 3,
         'outlier_percent' => 30,
         'warn_below_percent' => 10,
         'lookback_days' => 7,
         'nearby_buyers_limit' => 20,
+        'notify_cooldown_minutes' => 360,
     ],
 ];

@@ -182,6 +182,10 @@ class ChatBot
                 .'(wajar: '.Rupiah::format($parsed->commodity->min_price).'–'.Rupiah::format($parsed->commodity->max_price)."/kg).\nMohon cek lagi lalu kirim ulang ya 🙏"];
         }
 
+        if ($parsed->quantityKg > (int) config('lapor.market.max_quantity_kg')) {
+            return ['Jumlah '.Rupiah::kg($parsed->quantityKg).' terlalu besar untuk satu laporan (maksimal '.Rupiah::kg((int) config('lapor.market.max_quantity_kg')).").\nMohon cek lagi lalu kirim ulang ya 🙏"];
+        }
+
         $report = $this->reports->createPending($farmer, $parsed, $text);
         $conversation->moveTo(self::CONFIRM_REPORT, ['report_id' => $report->id], (int) config('lapor.market.confirm_minutes'));
 

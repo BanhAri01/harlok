@@ -27,6 +27,10 @@ class OfferService
                 throw ValidationException::withMessages(['price_per_kg' => 'Akun demo hanya bisa menawar stok contoh atau stok dari simulator.']);
             }
 
+            if (! $buyer->is_demo && ! $buyer->isAdmin() && $report->farmer->channel !== 'wa') {
+                throw ValidationException::withMessages(['price_per_kg' => 'Stok ini berasal dari data contoh atau simulator, jadi tidak bisa ditawar dengan akun pengepul sungguhan.']);
+            }
+
             if (! $report->isAvailable()) {
                 throw ValidationException::withMessages(['price_per_kg' => 'Stok ini sudah tidak tersedia.']);
             }

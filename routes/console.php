@@ -1,11 +1,15 @@
 <?php
 
+use App\Models\Conversation;
 use App\Models\DailyPrice;
 use App\Models\Farmer;
+use App\Models\InboundMessage;
+use App\Models\OutboundMessage;
 use App\Models\StockReport;
 use App\Models\User;
 use App\Services\Messenger;
 use App\Services\PriceBoard;
+use App\Support\Phone;
 use App\Support\Rupiah;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -50,8 +54,23 @@ Artisan::command('lapor:rapikan', function () {
     $expiredStock = StockReport::query()->where('status', StockReport::CONFIRMED)->where('expires_at', '<', now())
         ->update(['status' => StockReport::CLOSED, 'closed_at' => now()]);
 
-    $this->info("Laporan menunggu kedaluwarsa: {$expiredPending}, stok ditutup: {$expiredStock}");
-})->purpose('Tutup laporan yang kedaluwarsa');
+    $cutoff = now()->subDays((int) config('lapor.simulator.keep_days'));
+    $simulators = Farmer::query()->where('channel', 'simulator')->where('updated_at', '<', $cutoff)->pluck('id');
+    $touched = StockReport::query()->whereIn('farmer_id', $simulators)->whereNotNull('confirmed_at')
+        ->get(['commodity_id', 'region_id', 'confirmed_at'])
+        ->unique(fn ($report) => $report->commodity_id.'-'.$report->region_id.'-'.$report->confirmed_at->toDateString());
+
+    Farmer::query()->whereIn('id', $simulators)->delete();
+    $prefix = Phone::SIMULATOR_PREFIX.'%';
+    Conversation::query()->where('phone', 'like', $prefix)->where('updated_at', '<', $cutoff)->delete();
+    InboundMessage::query()->where('phone', 'like', $prefix)->where('created_at', '<', $cutoff)->delete();
+    OutboundMessage::query()->where('phone', 'like', $prefix)->where('created_at', '<', $cutoff)->delete();
+
+    $board = app(PriceBoard::class);
+    $touched->each(fn ($report) => $board->recompute($report->commodity_id, $report->region_id, $report->confirmed_at));
+
+    $this->info("Laporan menunggu kedaluwarsa: {$expiredPending}, stok ditutup: {$expiredStock}, peternak simulator dihapus: {$simulators->count()}");
+})->purpose('Tutup laporan yang kedaluwarsa dan hapus data simulator lama');
 
 Artisan::command('lapor:admin {email} {name=Admin}', function (string $email, string $name) {
     $password = Str::password(14, symbols: false);

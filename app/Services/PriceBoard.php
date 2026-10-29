@@ -19,6 +19,10 @@ class PriceBoard
             ->whereIn('status', StockReport::PRICED)
             ->whereBetween('confirmed_at', [$date->copy()->startOfDay(), $date->copy()->endOfDay()])
             ->whereHas('farmer', fn ($query) => $query->whereNotNull('verified_at'))
+            ->orderByDesc('confirmed_at')
+            ->orderByDesc('id')
+            ->get(['farmer_id', 'price_per_kg'])
+            ->unique('farmer_id')
             ->pluck('price_per_kg')
             ->sort()
             ->values();
@@ -60,13 +64,43 @@ class PriceBoard
             return ['price' => $regional->avg_price, 'scope' => 'region', 'date' => $regional->date];
         }
 
-        $latestDate = DailyPrice::query()->where('commodity_id', $commodityId)->where('date', '>=', $since)->max('date');
+        return $this->allRegionsAverage($commodityId);
+    }
+
+    public function baselineFor(StockReport $report): ?array
+    {
+        $others = StockReport::query()
+            ->where('commodity_id', $report->commodity_id)
+            ->where('region_id', $report->region_id)
+            ->where('farmer_id', '!=', $report->farmer_id)
+            ->whereIn('status', StockReport::PRICED)
+            ->where('confirmed_at', '>=', now()->subDays((int) config('lapor.market.lookback_days'))->startOfDay())
+            ->whereHas('farmer', fn ($query) => $query->whereNotNull('verified_at'))
+            ->orderByDesc('confirmed_at')
+            ->orderByDesc('id')
+            ->get(['farmer_id', 'price_per_kg', 'confirmed_at'])
+            ->unique('farmer_id');
+
+        if ($others->isNotEmpty()) {
+            return ['price' => (int) round($others->avg('price_per_kg')), 'scope' => 'region', 'date' => $others->first()->confirmed_at];
+        }
+
+        return $this->allRegionsAverage($report->commodity_id, $report->region_id);
+    }
+
+    private function allRegionsAverage(int $commodityId, ?int $exceptRegionId = null): ?array
+    {
+        $since = now()->subDays((int) config('lapor.market.lookback_days'))->toDateString();
+        $query = DailyPrice::query()->where('commodity_id', $commodityId)->where('date', '>=', $since)
+            ->when($exceptRegionId, fn ($query) => $query->where('region_id', '!=', $exceptRegionId));
+
+        $latestDate = (clone $query)->max('date');
 
         if (! $latestDate) {
             return null;
         }
 
-        $average = DailyPrice::query()->where('commodity_id', $commodityId)->where('date', $latestDate)->avg('avg_price');
+        $average = (clone $query)->where('date', $latestDate)->avg('avg_price');
 
         return ['price' => (int) round($average), 'scope' => 'all', 'date' => Carbon::parse($latestDate)];
     }

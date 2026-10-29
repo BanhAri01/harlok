@@ -8,6 +8,7 @@ use App\Models\Farmer;
 use App\Models\StockReport;
 use App\Models\User;
 use App\Support\Rupiah;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ReportService
@@ -41,7 +42,7 @@ class ReportService
 
     public function confirm(StockReport $report): array
     {
-        $market = $this->prices->marketAverage($report->commodity_id, $report->region_id);
+        $market = $this->prices->baselineFor($report);
         $outlier = (int) config('lapor.market.outlier_percent');
         $deviation = $market ? ($report->price_per_kg - $market['price']) / $market['price'] * 100 : null;
 
@@ -113,7 +114,7 @@ class ReportService
             return [$farmer->lat, $farmer->lng];
         }
 
-        $seed = crc32($farmer->phone.$region->id);
+        $seed = hexdec(substr(hash_hmac('sha256', $farmer->id.'|'.$region->id, (string) config('app.key')), 0, 8));
         $latOffset = (($seed % 1000) / 1000 - 0.5) * 0.07;
         $lngOffset = ((intdiv($seed, 1000) % 1000) / 1000 - 0.5) * 0.07;
 
@@ -122,6 +123,17 @@ class ReportService
 
     private function notifyBuyers(StockReport $report): void
     {
+        $farmer = $report->farmer;
+
+        if ($farmer->channel !== 'wa' || ! $farmer->isVerified()) {
+            return;
+        }
+
+        $cooldown = 'notif-pengepul:'.$farmer->id.':'.$report->commodity_id;
+        if (! Cache::add($cooldown, true, now()->addMinutes((int) config('lapor.market.notify_cooldown_minutes')))) {
+            return;
+        }
+
         $buyers = User::query()
             ->where('role', User::BUYER)
             ->where('is_active', true)
