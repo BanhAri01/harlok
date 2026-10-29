@@ -62,7 +62,7 @@
 
         <div class="kaki">
             <span>{{ $hasSamples ? 'Memuat data contoh.' : 'Dari laporan peternak terverifikasi.' }}</span>
-            <a href="{{ route('home', ['komoditas' => $commodity->slug]) }}" target="_blank" rel="noopener">Juru Harga</a>
+            <a href="{{ route('home', ['komoditas' => $commodity->slug]) }}" target="_blank" rel="noopener">Harlok</a>
         </div>
     </div>
 </body>

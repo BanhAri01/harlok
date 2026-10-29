@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="Juru Harga: peternak dan petani melapor stok serta harga lewat WhatsApp, pengepul menawar lewat web, dan harga pasar terbuka untuk semua.">
+    <meta name="description" content="Harlok: peternak dan petani melapor stok serta harga lewat WhatsApp, pengepul menawar lewat web, dan harga pasar terbuka untuk semua.">
     <title>{{ isset($title) ? $title.' — ' : '' }}{{ config('app.name') }}</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23163326'/%3E%3Cpath d='M9 8h9l7 7-9 9-7-7z' fill='%23F5B700'/%3E%3Ccircle cx='13' cy='12' r='1.8' fill='%23163326'/%3E%3C/svg%3E">
     @fonts
@@ -17,7 +17,7 @@
         <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
             <a href="{{ route('home') }}" class="flex items-center gap-2.5">
                 <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1F4433"/><path d="M9 8h9l7 7-9 9-7-7z" fill="#F5B700"/><circle cx="13" cy="12" r="1.8" fill="#163326"/></svg>
-                <span class="font-display text-xl font-extrabold tracking-tight text-kapur">Juru Harga</span>
+                <span class="font-display text-xl font-extrabold tracking-tight text-kapur">Harlok</span>
             </a>
 
             <nav class="ml-auto flex flex-wrap items-center gap-1 text-sm font-medium text-kapur/80" aria-label="Menu utama">
@@ -56,7 +56,7 @@
 
     <footer class="mt-16 border-t border-garis">
         <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-sm text-tinta/60">
-            <p>Juru Harga — harga pasar yang adil, cukup lewat WhatsApp.</p>
+            <p>Harlok — harga pasar yang adil, cukup lewat WhatsApp.</p>
             <p>Data harga berasal dari laporan peternak terverifikasi.</p>
         </div>
     </footer>

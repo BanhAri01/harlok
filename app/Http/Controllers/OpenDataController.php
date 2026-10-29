@@ -58,7 +58,7 @@ class OpenDataController extends Controller
             ->orderBy('commodity_id')
             ->orderBy('region_id');
 
-        $filename = 'juru-harga-'.($commodity?->slug ?? 'semua').'-'.now()->toDateString().'.csv';
+        $filename = 'harlok-'.($commodity?->slug ?? 'semua').'-'.now()->toDateString().'.csv';
 
         return response()->streamDownload(function () use ($query, $commodities, $regions) {
             $out = fopen('php://output', 'w');

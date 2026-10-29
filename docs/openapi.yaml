@@ -1,13 +1,13 @@
 openapi: 3.1.0
 info:
-  title: Juru Harga — API Data Harga
+  title: Harlok — API Data Harga
   version: 1.0.0
   description: |
     Harga komoditas pertanian dan peternakan per wilayah, dihitung dari laporan peternak terverifikasi lewat WhatsApp.
     Semua harga dalam rupiah per kilogram. API hanya mengeluarkan angka gabungan; nama dan nomor peternak tidak pernah dibagikan.
     Token diberikan koordinator (izin `prices:read`, berlaku 6 bulan). Batas 60 permintaan per menit per token.
 servers:
-  - url: https://juruharga.hermesworkss.com
+  - url: https://harlok.hermesworkss.com
   - url: http://127.0.0.1:8000
 security:
   - bearerAuth: []

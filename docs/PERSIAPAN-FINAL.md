@@ -1,4 +1,4 @@
-# Persiapan Presentasi & Tanya Jawab — Juru Harga
+# Persiapan Presentasi & Tanya Jawab — Harlok
 
 Tanya jawab bernilai **40%** di final. Pelajari jawaban di bawah sampai bisa diucapkan dengan kata-kata sendiri, bukan dihafal. Jawaban yang baik: **jawab langsung dalam satu kalimat → beri bukti (kode/data/demo) → akui batasannya bila ada.** Bagian bertanda [ISI] diisi setelah uji pengguna dan deploy.
 
@@ -9,7 +9,7 @@ Tanya jawab bernilai **40%** di final. Pelajari jawaban di bawah sampai bisa diu
 | 0:00 | 1. Pembuka | Foto bapak di kandang + satu kalimat: "Bapak saya menjual telur tanpa tahu harga pasar hari itu." |
 | 0:45 | 2. Masalah | 16,89 juta RTUP gurem (BPS 2023); MPP telur 20,19%; aplikasi pertanian butuh instal, sedangkan WhatsApp dipakai 90,9% pengguna internet. |
 | 1:45 | 3. Ide dalam satu kalimat | "Satu chat WhatsApp menjadi harga yang adil untuk satu wilayah." |
-| 2:15 | 4. **Demo langsung** (3 menit) | Juri/penonton mengirim WA "telur 1 ton 25rb" ke nomor Juru Harga → papan harga di layar berubah → Ari mengirim tawaran dari panel pengepul → HP juri menerima peringatan → juri balas 3. Cadangan: video rekaman bila sinyal buruk. |
+| 2:15 | 4. **Demo langsung** (3 menit) | Juri/penonton mengirim WA "telur 1 ton 25rb" ke nomor Harlok → papan harga di layar berubah → Ari mengirim tawaran dari panel pengepul → HP juri menerima peringatan → juri balas 3. Cadangan: video rekaman bila sinyal buruk. |
 | 5:15 | 5. Ekosistem terhubung | Diagram arsitektur: WhatsApp ↔ web pengepul ↔ panel koordinator ↔ API/widget/CSV untuk dinas & koperasi. |
 | 6:15 | 6. Data dapat dipercaya | Verifikasi peternak, rentang harga wajar, tahan >30%, konfirmasi YA, jejak audit. |
 | 7:00 | 7. Hasil uji pengguna | [ISI: tingkat keberhasilan, SUS, 2 kutipan, perbaikan yang dilakukan, jumlah laporan nyata]. |
@@ -23,7 +23,7 @@ Latihan: rekam diri sendiri minimal 5 kali; potong bagian yang lewat waktu. Sela
 
 ### Inovasi & masalah
 1. **Apa bedanya dengan Panel Harga Bapanas / SP2KP / PIHPS?**
-   Mereka mencatat harga pasar lewat petugas, satu arah, di tingkat kota/provinsi. Juru Harga mengambil harga langsung dari peternak lewat WhatsApp, di tingkat kabupaten, dan dua arah: pengepul bisa menawar, peternak menjawab 1/2/3. Data kami bahkan bisa melengkapi panel pemerintah lewat API.
+   Mereka mencatat harga pasar lewat petugas, satu arah, di tingkat kota/provinsi. Harlok mengambil harga langsung dari peternak lewat WhatsApp, di tingkat kabupaten, dan dua arah: pengepul bisa menawar, peternak menjawab 1/2/3. Data kami bahkan bisa melengkapi panel pemerintah lewat API.
 2. **Kenapa WhatsApp, bukan aplikasi Android?**
    Peternak berumur tidak mau instal aplikasi baru; WhatsApp sudah ada di HP mereka dan dipakai 90,9% pengguna internet. Pengepul dan koordinator yang perlu fitur banyak tetap memakai web.
 3. **Apa yang benar-benar baru di sini?**

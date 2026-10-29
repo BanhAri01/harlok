@@ -1,11 +1,11 @@
-# Panduan Uji Pengguna — Juru Harga (Kamis, 29 Okt 2026)
+# Panduan Uji Pengguna — Harlok (Kamis, 29 Okt 2026)
 
-Tujuan: membuktikan bahwa peternak bisa memakai Juru Harga lewat WhatsApp tanpa diajari lama, dan bahwa pengepul paham panel webnya. Hasilnya dipakai di proposal bab **User Testing** dan bab **Research**. **Semua angka harus dari sesi ini, tidak boleh dikira-kira.**
+Tujuan: membuktikan bahwa peternak bisa memakai Harlok lewat WhatsApp tanpa diajari lama, dan bahwa pengepul paham panel webnya. Hasilnya dipakai di proposal bab **User Testing** dan bab **Research**. **Semua angka harus dari sesi ini, tidak boleh dikira-kira.**
 
 ## Peserta
 | Kelompok | Jumlah | Contoh | Kanal |
 |---|---|---|---|
-| Peternak/petani | 3–5 orang | bapak, tetangga peternak, anggota kelompok ternak | WhatsApp asli ke nomor Juru Harga (bila belum siap: HP Ari membuka `/coba`) |
+| Peternak/petani | 3–5 orang | bapak, tetangga peternak, anggota kelompok ternak | WhatsApp asli ke nomor Harlok (bila belum siap: HP Ari membuka `/coba`) |
 | Pengepul | 2–3 orang | pengepul langganan bapak | web di HP/laptop, akun dari koordinator |
 
 Catat untuk tiap peserta: kode (P1, P2, K1…), umur, lama berusaha, jenis HP, seberapa sering memakai WhatsApp. **Nama asli dan nomor tidak ditulis di proposal.**
@@ -76,5 +76,5 @@ Ringkas di proposal: tingkat keberhasilan tiap tugas (mis. "4 dari 5 peternak be
 - Laporan harga yang dikirim peserta adalah **data nyata pertama** di papan harga. Koordinator (Ari) memverifikasi peternak tersebut di panel.
 
 ## Formulir izin singkat
-> Saya bersedia mencoba aplikasi Juru Harga untuk keperluan lomba UINIC 8.0. Saya mengizinkan jawaban saya dipakai tanpa menyebut nama dan nomor HP saya. Foto/rekaman: ☐ boleh ☐ tidak boleh.
+> Saya bersedia mencoba aplikasi Harlok untuk keperluan lomba UINIC 8.0. Saya mengizinkan jawaban saya dipakai tanpa menyebut nama dan nomor HP saya. Foto/rekaman: ☐ boleh ☐ tidak boleh.
 > Nama: ____________ Tanda tangan: ________ Tanggal: ________

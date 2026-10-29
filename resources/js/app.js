@@ -301,7 +301,7 @@ Alpine.data('widgetMaker', ({ baseUrl, commodity }) => ({
     },
 
     get code() {
-        return `<iframe src="${this.src}" title="Harga pasar Juru Harga" width="100%" height="${this.height}" style="border:0" loading="lazy"></iframe>`;
+        return `<iframe src="${this.src}" title="Harga pasar Harlok" width="100%" height="${this.height}" style="border:0" loading="lazy"></iframe>`;
     },
 
     async copy() {

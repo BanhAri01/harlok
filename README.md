@@ -1,8 +1,8 @@
-# Juru Harga
+# Harlok
 
 **Harga pasar yang adil, cukup lewat WhatsApp.**
 
-Juru Harga adalah sistem web yang menghubungkan peternak dan petani kecil, pengepul, serta pihak lain (dinas, koperasi, aplikasi lain) dalam satu ekosistem data harga. Peternak cukup mengirim chat WhatsApp biasa seperti `telur 2 ton 26rb`. Pesan itu dibaca sistem, dikonfirmasi ulang, lalu berubah menjadi:
+Harlok adalah sistem web yang menghubungkan peternak dan petani kecil, pengepul, serta pihak lain (dinas, koperasi, aplikasi lain) dalam satu ekosistem data harga. Peternak cukup mengirim chat WhatsApp biasa seperti `telur 2 ton 26rb`. Pesan itu dibaca sistem, dikonfirmasi ulang, lalu berubah menjadi:
 
 1. **harga rata-rata per wilayah** yang langsung dikirim balik ke peternak,
 2. **titik stok di peta** yang bisa ditawar pengepul dari web,
@@ -31,7 +31,7 @@ Karya ini dibuat untuk Web Development Competition UINIC 8.0, tema *Engineering 
 - Aplikasi pertanian umumnya mewajibkan instal aplikasi, mendaftar, dan belajar menu baru. Banyak peternak, terutama yang sudah berumur, hanya memakai WhatsApp.
 - Data harga tersebar di obrolan pribadi dan tidak pernah terkumpul menjadi informasi yang bisa dipakai bersama.
 
-Juru Harga memindahkan "pintu masuk" ke aplikasi yang sudah dipakai peternak setiap hari, yaitu WhatsApp.
+Harlok memindahkan "pintu masuk" ke aplikasi yang sudah dipakai peternak setiap hari, yaitu WhatsApp.
 
 ## Fitur
 
@@ -105,7 +105,7 @@ Tabel utama: `regions`, `commodities`, `farmers`, `conversations`, `inbound_mess
 Kebutuhan: PHP 8.3+ (ekstensi pdo_sqlite atau pdo_mysql, mbstring, intl), Composer 2, Node.js 20+.
 
 ```bash
-git clone <repo> juru-harga && cd juru-harga
+git clone <repo> harlok && cd harlok
 composer install
 npm install && npm run build
 cp .env.example .env
@@ -142,7 +142,7 @@ Jadwal (cron `* * * * * php artisan schedule:run`):
 ## Panduan penggunaan
 
 **Peternak**
-1. Simpan nomor Juru Harga, lalu kirim `halo`.
+1. Simpan nomor Harlok, lalu kirim `halo`.
 2. Jawab nama, pilih nomor wilayah, pilih nomor komoditas.
 3. Setiap ada stok, kirim misalnya `telur 2 ton 26rb`, periksa ringkasannya, lalu balas `YA`.
 4. Saat ada tawaran, balas `1` (terima), `2` (tolak), atau `3` (tawar balik, lalu tulis harga).

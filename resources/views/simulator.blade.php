@@ -8,7 +8,7 @@
         <div class="flex items-center gap-3 bg-papan px-4 py-3 text-kapur">
             <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="16" fill="#1F4433"/><path d="M9 8h9l7 7-9 9-7-7z" fill="#F5B700"/><circle cx="13" cy="12" r="1.8" fill="#163326"/></svg>
             <div>
-                <p class="font-semibold leading-tight">Juru Harga</p>
+                <p class="font-semibold leading-tight">Harlok</p>
                 <p class="text-xs text-kapur/60" x-text="busy ? 'mengetik…' : 'online'"></p>
             </div>
             <button type="button" @click="reset()" class="ml-auto rounded-md px-2 py-1 text-xs text-kapur/70 hover:bg-white/10" title="Mulai sebagai nomor baru">Nomor baru</button>
@@ -45,7 +45,7 @@
 
     <div class="self-center">
         <h1 class="font-display text-4xl font-extrabold tracking-tight">Rasakan jadi peternak.</h1>
-        <p class="mt-3 max-w-xl text-lg text-tinta/75">Chat di samping memakai bot yang sama persis dengan nomor WhatsApp Juru Harga. Bedanya, semua pesannya tetap di halaman ini dan tidak ada yang terkirim ke WhatsApp.</p>
+        <p class="mt-3 max-w-xl text-lg text-tinta/75">Chat di samping memakai bot yang sama persis dengan nomor WhatsApp Harlok. Bedanya, semua pesannya tetap di halaman ini dan tidak ada yang terkirim ke WhatsApp.</p>
 
         <ol class="mt-8 space-y-4">
             <li class="flex gap-4">

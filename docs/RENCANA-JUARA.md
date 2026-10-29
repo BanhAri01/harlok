@@ -1,4 +1,4 @@
-# Rencana Juara — Juru Harga di UINIC 8.0
+# Rencana Juara — Harlok di UINIC 8.0
 
 Dibuat 28 Okt 2026 dini hari. Pembagian kerja: **Ari** (pemilik, wajah tim, data lapangan), **Claude** (kode, deploy, keamanan, review), **Gemini** (riset, diagram, naskah). Tugas Claude/Gemini juga tercatat di `D:\Coding\PAPAN-TUGAS-AI.md`.
 
@@ -20,7 +20,7 @@ Dibuat 28 Okt 2026 dini hari. Pembagian kerja: **Ari** (pemilik, wajah tim, data
 - Ikut sendiri → nilai "tim" di final. Jawaban: tunjukkan proses kerja yang tertata (papan tugas, tes otomatis, peran AI sebagai alat), dan bawa cerita pengguna nyata.
 - Data masih contoh → ganti/lengkapi dengan laporan nyata sebelum semifinal. Jangan pernah menyebut data contoh sebagai data asli.
 - Risiko nomor WA diblokir / biaya Fonnte → siapkan jawaban (batas pesan harian, nomor cadangan, bisa pindah ke WhatsApp Cloud API resmi).
-- "Bedanya dengan Panel Harga pemerintah?" → milik pemerintah satu arah dan tingkat kota/provinsi; Juru Harga dua arah (lapor + tawar), tingkat kabupaten, langsung dari peternak, lewat WA.
+- "Bedanya dengan Panel Harga pemerintah?" → milik pemerintah satu arah dan tingkat kota/provinsi; Harlok dua arah (lapor + tawar), tingkat kabupaten, langsung dari peternak, lewat WA.
 
 ## 2. Jadwal
 
@@ -28,11 +28,11 @@ Dibuat 28 Okt 2026 dini hari. Pembagian kerja: **Ari** (pemilik, wajah tim, data
 - **Ari (pagi–siang, ±2 jam):**
   1. Beli kartu perdana khusus → daftar Fonnte → pindai QR. Isi `FONNTE_TOKEN`, `FONNTE_DEVICE` sendiri ke `.env` (jangan di chat).
   2. Buat `ANTHROPIC_API_KEY` (console.anthropic.com), isi ke `.env`.
-  3. Buat repo GitHub publik `juru-harga` (kosong), kirim link-nya ke Claude.
+  3. Buat repo GitHub publik `harlok` (kosong), kirim link-nya ke Claude.
   4. Daftar lewat bit.ly/PENDAFTARAN_WEBDEV_UINIC8 + bayar Rp65.000 (BSI 7373992407 a.n. Filza Nadira Yuksa). Simpan bukti.
-  5. Cek nama "Juru Harga" di pdki-indonesia.dgip.go.id.
+  5. Cek nama "Harlok" di pdki-indonesia.dgip.go.id.
   6. Beri perintah deploy ke Claude.
-- **Claude:** deploy ke `juruharga.hermesworkss.com` (setelah perintah + backup), sambungkan webhook, uji WA asli. Fitur penguat C2–C5 (lihat bagian 3).
+- **Claude:** deploy ke `harlok.hermesworkss.com` (setelah perintah + backup), sambungkan webhook, uji WA asli. Fitur penguat C2–C5 (lihat bagian 3).
 - **Gemini:** G1 riset pesaing & data latar belakang, G2 diagram.
 
 ### Kamis 29 Okt — hari data nyata
@@ -57,7 +57,7 @@ Dibuat 28 Okt 2026 dini hari. Pembagian kerja: **Ari** (pemilik, wajah tim, data
 ### Final (17–27 Nov)
 - PPT dikumpulkan 25 Nov. Latihan presentasi 10 menit minimal 5 kali (rekam, putar ulang).
 - Latihan tanya jawab dari bank pertanyaan (40% nilai!).
-- Demo langsung: juri diminta mengirim WA "telur 1 ton 25rb" ke nomor Juru Harga, layar menampilkan papan harga berubah. Siapkan video cadangan bila internet gedung bermasalah.
+- Demo langsung: juri diminta mengirim WA "telur 1 ton 25rb" ke nomor Harlok, layar menampilkan papan harga berubah. Siapkan video cadangan bila internet gedung bermasalah.
 
 ## 3. Daftar penguat (urut prioritas)
 

@@ -8,7 +8,7 @@
 ## Sampul
 - Logo UINIC 8.0 + logo kampus
 - Nama tim: **[ISI ARI]**
-- Judul: **Juru Harga: Sistem Lapor Stok dan Harga Komoditas lewat WhatsApp untuk Posisi Tawar Peternak dan Petani Kecil**
+- Judul: **Harlok: Sistem Lapor Stok dan Harga Komoditas lewat WhatsApp untuk Posisi Tawar Peternak dan Petani Kecil**
 - Subtema: AI & Teknologi Digital
 
 ## 1. Anggota
@@ -17,7 +17,7 @@
 | I Dewa Made Ari Santika **[cek ejaan]** | **[ISI ARI]** | Ketua (individu): analisis, desain, pengembangan, pengujian |
 
 ## 2. Judul
-**Juru Harga** adalah sistem web yang mengubah chat WhatsApp biasa dari peternak dan petani ("telur 2 ton 26rb") menjadi data harga pasar per wilayah, peta stok untuk pengepul, dan API data terbuka. Nama "juru" diambil dari sebutan orang yang ahli dalam satu tugas (juru masak, juru bicara): Juru Harga adalah juru yang membacakan harga yang adil bagi semua pihak.
+**Harlok** adalah sistem web yang mengubah chat WhatsApp biasa dari peternak dan petani ("telur 2 ton 26rb") menjadi data harga pasar per wilayah, peta stok untuk pengepul, dan API data terbuka. Nama "Harlok" adalah singkatan dari *harga lokal*: harga yang lahir dari laporan peternak di wilayahnya sendiri, bukan harga yang ditentukan dari jauh. [ISI ARI: bila ada, cerita singkat kenapa memilih nama ini.]
 
 ## 3. Latar Belakang
 Peternak dan petani kecil menjual hasil panennya kepada pengepul tanpa pegangan harga pasar hari itu. Informasi harga beredar dari mulut ke mulut dan dari satu obrolan WhatsApp ke obrolan lain, sehingga pihak yang paling banyak tahu harga, yaitu pembeli, memegang posisi tawar paling kuat. Penulis tumbuh di keluarga peternak ayam petelur di Bali dan melihat langsung bagaimana harga telur sering ditentukan sepihak. **[ISI ARI: 2–3 kalimat cerita nyata keluarga, misal selisih harga yang pernah dialami]**
@@ -25,7 +25,7 @@ Peternak dan petani kecil menjual hasil panennya kepada pengepul tanpa pegangan 
 Masalahnya bukan hanya ketiadaan data, tetapi juga **pintu masuk**. Kebanyakan aplikasi pertanian mewajibkan instal aplikasi, mendaftar dengan email, dan belajar menu baru. Bagi peternak yang sudah berumur, hambatan ini cukup untuk membuat aplikasi tidak pernah dipakai. Sebaliknya, WhatsApp sudah dipakai setiap hari.
 **[ISI ARI: tambahkan 2–3 data resmi + sumber, misalnya jumlah rumah tangga usaha pertanian (Sensus Pertanian BPS 2023), penetrasi WhatsApp/internet di Indonesia (APJII), dan rantai pasok/margin perdagangan komoditas (BPS). Cantumkan di Daftar Pustaka.]**
 
-Juru Harga dibangun dengan prinsip: peternak tidak perlu belajar apa pun selain mengirim chat seperti biasa.
+Harlok dibangun dengan prinsip: peternak tidak perlu belajar apa pun selain mengirim chat seperti biasa.
 
 ## 4. Tujuan dan Manfaat
 **Tujuan**
@@ -104,7 +104,7 @@ Komponen:
 
 ## 10. Skenario Pengguna
 **Pak Made, peternak telur di Tabanan**
-1. Mengirim "halo" ke nomor Juru Harga, menjawab nama, memilih nomor Tabanan dan nomor Telur dari daftar.
+1. Mengirim "halo" ke nomor Harlok, menjawab nama, memilih nomor Tabanan dan nomor Telur dari daftar.
 2. Pagi hari mengirim "telur 2 ton 26rb". Bot membalas ringkasan 2.000 kg × Rp26.000. Ia membalas YA.
 3. Bot membalas: rata-rata Tabanan Rp26.400, harga Anda Rp400 di bawah rata-rata.
 4. Siang hari masuk tawaran Rp23.000 dari UD Sumber Telur dengan tanda ⚠️ (13% di bawah rata-rata; peringatan muncul bila selisihnya 10% atau lebih). Ia membalas 3 lalu 26000.
@@ -140,7 +140,7 @@ Tempel tangkapan layar (folder `docs/screenshots/`): papan harga (desktop + HP),
 Pengujian fungsional otomatis yang sudah ada: 45 tes Pest (158 asersi) — pembacaan 9 variasi pesan, alur pendaftaran dan laporan, penahanan harga janggal, alur tawaran, batas akun demo, keamanan webhook, hak akses, kebocoran data publik/API, validasi API. Semua lulus.
 
 ## 14. Kesimpulan
-Juru Harga menunjukkan bahwa ekosistem data harga yang saling terhubung dapat dibangun tanpa memaksa peternak berpindah aplikasi. WhatsApp menjadi pintu masuk, web menjadi tempat pengepul dan koordinator bekerja, dan API membuka data bagi pihak lain. Pengembangan berikutnya: perluasan wilayah dan komoditas, pesan suara (ucapan ke teks), prediksi harga dari riwayat data, serta kerja sama dengan koperasi atau dinas setempat.
+Harlok menunjukkan bahwa ekosistem data harga yang saling terhubung dapat dibangun tanpa memaksa peternak berpindah aplikasi. WhatsApp menjadi pintu masuk, web menjadi tempat pengepul dan koordinator bekerja, dan API membuka data bagi pihak lain. Pengembangan berikutnya: perluasan wilayah dan komoditas, pesan suara (ucapan ke teks), prediksi harga dari riwayat data, serta kerja sama dengan koperasi atau dinas setempat.
 
 ## 15. Daftar Pustaka
 **[ISI ARI — sumber data latar belakang]** Contoh format:
@@ -150,9 +150,9 @@ Juru Harga menunjukkan bahwa ekosistem data harga yang saling terhubung dapat di
 - Brooke, J. (1996). SUS: A "quick and dirty" usability scale. *Usability Evaluation in Industry*, 189–194.
 
 ## 16. Lampiran
-- Link demo: `https://juruharga.hermesworkss.com` **[setelah deploy]**
+- Link demo: `https://harlok.hermesworkss.com` **[setelah deploy]**
 - Link GitHub: **[setelah repo dibuat]**
 - Akun demo pengepul: `pengepul@contoh.id` / **[LAPOR_DEMO_PASSWORD]**
-- Nomor WhatsApp Juru Harga: **[nomor Fonnte]**
+- Nomor WhatsApp Harlok: **[nomor Fonnte]**
 - Dokumentasi: README, `/dokumentasi-api`
 - Dokumentasi uji pengguna (foto/form) **[ISI ARI]**
