@@ -91,6 +91,17 @@ Alpine.data('papan', ({ url, commodity, buyer = false, offerUrlTemplate = null, 
         this.map.flyTo(AREAS[area].center, AREAS[area].zoom, { duration: 0.8 });
     },
 
+    get provinces() {
+        const groups = [];
+        (this.data?.regions ?? []).forEach((row) => {
+            const name = row.province ?? 'Lainnya';
+            let group = groups.find((item) => item.name === name);
+            if (!group) groups.push((group = { name, rows: [] }));
+            group.rows.push(row);
+        });
+        return groups;
+    },
+
     get averages() {
         const map = {};
         (this.data?.regions ?? []).forEach((row) => (map[row.region] = row.avg));

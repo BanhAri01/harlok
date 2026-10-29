@@ -13,6 +13,9 @@ export default defineConfig({
                     weights: [400, 700],
                     styles: ['normal', 'italic'],
                 }),
+                bunny('Big Shoulders Display', {
+                    weights: [700, 800],
+                }),
             ],
         }),
         tailwindcss(),

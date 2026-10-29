@@ -53,6 +53,7 @@ class BoardData
             ])->values(),
             'regions' => $this->prices->regionSummary($commodity)->map(fn (array $row) => [
                 'region' => $row['region']->name,
+                'province' => $row['region']->province,
                 'avg' => $row['avg'],
                 'min' => $row['min'],
                 'max' => $row['max'],
