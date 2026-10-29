@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Ai\AiGateway;
+use App\Models\AiCall;
 use App\Models\AuditLog;
 use App\Models\Farmer;
 use App\Models\InboundMessage;
@@ -21,7 +23,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AdminController extends Controller
 {
-    public function dashboard(): View
+    public function dashboard(AiGateway $ai): View
     {
         return view('admin.dashboard', [
             'flagged' => StockReport::query()->with('farmer:id,name,phone', 'commodity:id,name', 'region:id,name')->where('status', StockReport::FLAGGED)->latest('id')->limit(30)->get(),
@@ -35,7 +37,27 @@ class AdminController extends Controller
                 'failed_today' => OutboundMessage::query()->where('status', 'failed')->where('created_at', '>=', now()->startOfDay())->count(),
             ],
             'limit' => config('lapor.whatsapp.daily_outbound_limit'),
+            'ai' => $this->aiStats($ai),
         ]);
+    }
+
+    private function aiStats(AiGateway $ai): array
+    {
+        $calls = AiCall::query()->where('created_at', '>=', now()->subDays(7))
+            ->selectRaw('purpose, status, count(*) as total, avg(latency_ms) as latency')
+            ->groupBy('purpose', 'status')
+            ->get();
+        $answered = $calls->where('status', AiCall::OK);
+
+        return [
+            'active' => $ai->available(),
+            'provider' => config('lapor.ai.driver').' · '.(config('lapor.ai.model') ?: config('lapor.ai.models.'.config('lapor.ai.driver'))),
+            'total' => (int) $calls->sum('total'),
+            'ok' => (int) $answered->sum('total'),
+            'fallback' => (int) $calls->where('status', '!=', AiCall::OK)->sum('total'),
+            'latency' => $answered->sum('total') ? (int) round($answered->sum(fn ($row) => $row->latency * $row->total) / $answered->sum('total')) : null,
+            'purposes' => $calls->groupBy('purpose')->map(fn ($rows) => (int) $rows->sum('total'))->all(),
+        ];
     }
 
     public function farmers(Request $request): View

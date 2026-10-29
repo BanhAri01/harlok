@@ -20,6 +20,29 @@
         @endforeach
     </dl>
 
+    <section class="panel mt-6 p-5">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2 class="font-display text-lg font-bold">Asisten AI, 7 hari terakhir</h2>
+            <span @class(['rounded-full px-2.5 py-0.5 text-xs font-semibold', 'bg-naik/15 text-naik' => $ai['active'], 'bg-tinta/10 text-tinta/60' => ! $ai['active']])>
+                {{ $ai['active'] ? 'Aktif: '.$ai['provider'] : 'Belum aktif, bot memakai pembaca aturan' }}
+            </span>
+        </div>
+        <dl class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div><dt class="text-sm text-tinta/60">Panggilan AI</dt><dd class="angka mt-1 text-2xl font-bold">{{ number_format($ai['total'], 0, ',', '.') }}</dd></div>
+            <div><dt class="text-sm text-tinta/60">Berhasil</dt><dd class="angka mt-1 text-2xl font-bold">{{ $ai['total'] ? round($ai['ok'] / $ai['total'] * 100).'%' : '–' }}</dd></div>
+            <div><dt class="text-sm text-tinta/60">Ditangani cadangan</dt><dd class="angka mt-1 text-2xl font-bold">{{ number_format($ai['fallback'], 0, ',', '.') }}</dd></div>
+            <div><dt class="text-sm text-tinta/60">Rata-rata waktu jawab</dt><dd class="angka mt-1 text-2xl font-bold">{{ $ai['latency'] ? number_format($ai['latency'] / 1000, 1, ',', '.').' dtk' : '–' }}</dd></div>
+        </dl>
+        @if ($ai['purposes'])
+            <p class="mt-3 text-sm text-tinta/60">
+                @foreach ($ai['purposes'] as $purpose => $total)
+                    {{ ['asisten' => 'Memahami chat', 'penjaga_harga' => 'Penjaga harga', 'ringkasan_pasar' => 'Ringkasan pasar'][$purpose] ?? $purpose }}: {{ $total }}@if (! $loop->last), @endif
+                @endforeach
+            </p>
+        @endif
+        <p class="mt-2 text-xs text-tinta/50">Yang dicatat hanya jenis, status, dan lama panggilan. Isi pesan, nama, dan nomor peternak tidak disimpan di log ini dan tidak dikirim ke AI.</p>
+    </section>
+
     <div class="mt-8 grid gap-6 lg:grid-cols-2">
         <section class="panel">
             <h2 class="border-b border-garis px-5 py-3 font-display text-lg font-bold">Laporan janggal ({{ $flagged->count() }})</h2>

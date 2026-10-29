@@ -232,3 +232,16 @@ it('perintah HARGA di WhatsApp menyertakan ringkasan AI', function () {
 
     expect(chat($farmer->phone, 'harga')[0])->toContain('📊 *Harga Telur Ayam Ras*')->toContain('🤖 Harga telur naik tipis di Gianyar.');
 });
+
+it('dasbor koordinator memantau keandalan AI tanpa menampilkan isi pesan', function () {
+    $farmer = farmer();
+    fakeAi(intent('pertanyaan', ['answer' => 'Datanya belum cukup.']));
+    chat($farmer->phone, 'pesan rahasia peternak soal harga');
+
+    $this->actingAs(admin())->get(route('admin.dashboard'))
+        ->assertOk()
+        ->assertSee('Aktif: openai · model-uji')
+        ->assertSee('Memahami chat: 1')
+        ->assertSee('100%')
+        ->assertDontSee('pesan rahasia peternak');
+});
