@@ -127,3 +127,11 @@ it('peternak terdaftar tetap dilayani tanpa kata kunci dan simulator diberi petu
     expect(chat($farmer->phone, 'telur 1 ton 26rb')[0])->toContain('Mohon cek');
     expect(chat(Phone::SIMULATOR_PREFIX.'abc123', 'halo')[0])->toContain('HARLOK');
 });
+
+it('teks halaman bertingkat memakai bahasa Indonesia', function () {
+    foreach (range(1, 30) as $index) {
+        farmer();
+    }
+
+    $this->actingAs(admin())->get(route('admin.farmers'))->assertOk()->assertSee('Menampilkan')->assertDontSee('Showing');
+});
