@@ -44,7 +44,7 @@ Latihan: rekam diri sendiri minimal 5 kali; potong bagian yang lewat waktu. Sela
 
 ### Teknis
 10. **Bagaimana bot memahami "telur 2 ton 26rb"?**
-    Pengurai pola (regex) mengenali satuan (ton, kwintal, kg, peti, tray, karung) dan cara menulis harga (26rb, 26.500, 26,5rb, rp26000, 5.6k), lalu mengubahnya ke kg dan rupiah/kg. Bila gagal, baru AI (Claude Haiku) dipanggil dengan keluaran dipaksa ke skema JSON, lalu dihitung ulang dengan aturan yang sama.
+    Pengurai pola (regex) mengenali satuan (ton, kwintal, kg, peti, tray, karung) dan cara menulis harga (26rb, 26.500, 26,5rb, rp26000, 5.6k), lalu mengubahnya ke kg dan rupiah/kg. Bila gagal, baru AI (Claude Haiku) dipanggil dengan keluaran dipaksa ke skema JSON, lalu dihitung ulang dengan aturan yang sama. Jujur soal status: pada uji coba ini AI dimatikan untuk menekan biaya; tanpa AI, pesan yang tidak terbaca dibalas dengan contoh format. AI dinyalakan cukup dengan mengisi kunci API, tanpa mengubah kode, dan dibatasi kuota harian per nomor serta keseluruhan.
 11. **Kenapa tidak semuanya pakai AI?**
     Lebih cepat, gratis, dan dapat diuji. AI hanya cadangan dan dibatasi 30 kali per nomor per hari supaya biaya terkendali.
 12. **Bagaimana mencegah satu stok terjual ke dua pengepul?**
