@@ -24,7 +24,7 @@ class AnthropicDriver implements AiDriver
         $client = new Client(
             apiKey: $this->apiKey,
             requestOptions: [
-                'maxRetries' => 1,
+                'maxRetries' => 0,
                 'transporter' => new GuzzleClient(['timeout' => $this->timeout, 'connect_timeout' => 8]),
             ],
         );

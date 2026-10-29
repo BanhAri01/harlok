@@ -25,7 +25,6 @@ class OpenAiCompatibleDriver implements AiDriver
             ->acceptJson()
             ->timeout((int) ceil($this->timeout))
             ->connectTimeout(8)
-            ->retry(1, 500, throw: false)
             ->post(rtrim($this->baseUrl, '/').'/chat/completions', [
                 'model' => $this->model,
                 'max_tokens' => $maxTokens,

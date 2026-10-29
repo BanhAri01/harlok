@@ -18,7 +18,7 @@ return [
         'base_url' => env('LAPOR_AI_BASE_URL') ?: 'https://api.deepseek.com',
         'model' => env('LAPOR_AI_MODEL'),
         'models' => ['anthropic' => 'claude-haiku-5-5', 'openai' => 'deepseek-chat'],
-        'timeout' => 20,
+        'timeout' => 12,
         'daily_per_phone' => 30,
         'daily_simulator' => (int) env('LAPOR_AI_DAILY_SIMULATOR', 60),
         'daily_global' => (int) env('LAPOR_AI_DAILY_GLOBAL', 500),
