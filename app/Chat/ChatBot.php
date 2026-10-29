@@ -6,7 +6,9 @@ use App\Models\AuditLog;
 use App\Models\Commodity;
 use App\Models\Conversation;
 use App\Models\Farmer;
+use App\Models\InboundMessage;
 use App\Models\Offer;
+use App\Models\OutboundMessage;
 use App\Models\Region;
 use App\Models\StockReport;
 use App\Services\OfferService;
@@ -14,6 +16,7 @@ use App\Services\PriceBoard;
 use App\Services\ReportService;
 use App\Support\Phone;
 use App\Support\Rupiah;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -28,6 +31,8 @@ class ChatBot
     public const CONFIRM_REPORT = 'confirm_report';
 
     public const COUNTER_PRICE = 'counter_price';
+
+    public const CONFIRM_LEAVE = 'confirm_leave';
 
     private const YES = ['ya', 'y', 'iya', 'yes', 'ok', 'oke', 'benar', 'betul', 'setuju', 'simpan'];
 
@@ -56,7 +61,17 @@ class ChatBot
             return [$this->cancel($conversation, $farmer)];
         }
 
-        if (in_array($command, ['stop', 'berhenti'], true) && ($farmer || $conversation->state !== Conversation::IDLE)) {
+        if ($command === 'keluar' && $farmer) {
+            $conversation->moveTo(self::CONFIRM_LEAVE, [], 10);
+
+            return ["⚠️ *Keluar dari {$this->appName()}?*
+
+Nama, nomor, stok, tawaran, dan riwayat laporan Anda akan *dihapus permanen* dan tidak bisa dikembalikan.
+
+Balas *YA* untuk keluar, atau *BATAL*."];
+        }
+
+        if (in_array($command, ['stop', 'berhenti', 'keluar'], true) && ($farmer || $conversation->state !== Conversation::IDLE)) {
             return [$this->stop($conversation, $farmer)];
         }
 
@@ -74,6 +89,7 @@ class ChatBot
             self::CONFIRM_REPORT => $this->confirmReport($conversation, $farmer, $text, $command),
             OfferService::STATE_REPLY => $this->offerReply($conversation, $farmer, $text, $command),
             self::COUNTER_PRICE => $this->counterPrice($conversation, $farmer, $text),
+            self::CONFIRM_LEAVE => $this->confirmLeave($conversation, $farmer, $command),
             default => $this->idle($conversation, $farmer, $text, $command),
         };
     }
@@ -426,6 +442,36 @@ class ChatBot
             : 'Baik, ringkasan pagi dihentikan. Ketik *MULAI* untuk berlangganan lagi.';
     }
 
+    private function confirmLeave(Conversation $conversation, Farmer $farmer, string $command): array
+    {
+        if (! in_array($command, self::YES, true)) {
+            $conversation->reset();
+
+            return ['Baik, Anda tidak jadi keluar. Data Anda tetap aman. Ketik *MENU* untuk bantuan.'];
+        }
+
+        $priced = $farmer->reports()->whereNotNull('confirmed_at')->get(['commodity_id', 'region_id', 'confirmed_at'])
+            ->unique(fn (StockReport $report) => $report->commodity_id.'-'.$report->region_id.'-'.$report->confirmed_at->toDateString());
+
+        DB::transaction(function () use ($conversation, $farmer) {
+            InboundMessage::query()->where('phone', $farmer->phone)->delete();
+            OutboundMessage::query()->where('phone', $farmer->phone)->delete();
+            $conversation->delete();
+            $farmer->delete();
+        });
+
+        $priced->each(fn (StockReport $report) => $this->prices->recompute($report->commodity_id, $report->region_id, $report->confirmed_at->copy()));
+        AuditLog::record('wa:keluar', 'farmer.left', null, ['reports' => $priced->count()]);
+
+        return ['✅ Data Anda sudah dihapus dan kami tidak akan membalas lagi. Terima kasih sudah memakai '.$this->appName().' 🙏
+Ketik *'.Str::upper((string) config('lapor.whatsapp.start_keyword')).'* kapan pun bila ingin bergabung kembali.'];
+    }
+
+    private function appName(): string
+    {
+        return (string) config('app.name');
+    }
+
     private function stop(Conversation $conversation, ?Farmer $farmer): string
     {
         $this->cancel($conversation, $farmer);
@@ -440,7 +486,7 @@ class ChatBot
 Ringkasan pagi tidak dikirim lagi dan kami hanya membalas bila Anda mengirim pesan.
 
 '
-            .'Ketik *HABIS* bila stok sudah terjual agar tidak ada tawaran baru, atau *MULAI* untuk berlangganan ringkasan lagi.';
+            .'Ketik *HABIS* bila stok sudah terjual agar tidak ada tawaran baru, *MULAI* untuk berlangganan ringkasan lagi, atau *KELUAR* untuk berhenti total dan menghapus data Anda.';
     }
 
     private function cancel(Conversation $conversation, ?Farmer $farmer): string
@@ -466,7 +512,9 @@ Ringkasan pagi tidak dikirim lagi dan kami hanya membalas bila Anda mengirim pes
             ."✅ *HABIS* — stok terakhir sudah terjual\n"
             ."🔔 *TAWARAN* — tawaran dari pembeli\n"
             ."🌅 *MULAI* / *STOP* — ringkasan harga tiap pagi\n"
-            .'↩️ *BATAL* — batalkan langkah';
+            .'↩️ *BATAL* — batalkan langkah
+'
+            .'🚪 *KELUAR* — berhenti total & hapus data saya';
     }
 
     private function example(?Commodity $commodity): string

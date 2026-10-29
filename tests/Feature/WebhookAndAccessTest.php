@@ -161,3 +161,29 @@ it('STOP peternak terdaftar membatalkan langkah yang berjalan dan mematikan ring
         ->and(StockReport::query()->where('farmer_id', $farmer->id)->where('status', StockReport::PENDING)->exists())->toBeFalse()
         ->and(chat($farmer->phone, 'stok')[0])->not->toContain('Mohon cek');
 });
+
+it('KELUAR menghapus data peternak setelah konfirmasi dan harganya tidak lagi dihitung', function () {
+    config(['lapor.whatsapp.start_keyword' => 'harlok']);
+    $farmer = farmer();
+    stock($farmer, 26000);
+    stock(farmer(), 30000);
+    app(PriceBoard::class)->recompute(commodity()->id, region('tabanan')->id, now());
+    $this->post('/webhook/wa/rahasia-uji', ['sender' => $farmer->phone, 'message' => 'halo', 'inboxid' => 'k1']);
+
+    expect(chat($farmer->phone, 'Keluar')[0])->toContain('dihapus permanen');
+    expect(chat($farmer->phone, 'YA')[0])->toContain('sudah dihapus');
+
+    expect(Farmer::query()->find($farmer->id))->toBeNull()
+        ->and(StockReport::query()->where('farmer_id', $farmer->id)->exists())->toBeFalse()
+        ->and(InboundMessage::query()->where('phone', $farmer->phone)->exists())->toBeFalse()
+        ->and(DailyPrice::query()->sole()->avg_price)->toBe(30000)
+        ->and(chat($farmer->phone, 'halo'))->toBe([]);
+});
+
+it('KELUAR batal bila peternak tidak membalas YA', function () {
+    $farmer = farmer();
+
+    chat($farmer->phone, 'keluar');
+    expect(chat($farmer->phone, 'tidak jadi')[0])->toContain('tidak jadi keluar')
+        ->and(Farmer::query()->find($farmer->id))->not->toBeNull();
+});
