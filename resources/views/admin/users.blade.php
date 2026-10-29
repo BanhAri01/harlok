@@ -7,7 +7,7 @@
     <div class="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
         <div class="panel overflow-x-auto">
             <table class="w-full text-left text-sm">
-                <thead class="border-b border-garis text-tinta/60">
+                <thead class="border-b-2 border-garis bg-daun text-tinta/70">
                     <tr><th class="px-4 py-3 font-semibold">Nama</th><th class="px-4 py-3 font-semibold">Peran</th><th class="px-4 py-3 font-semibold">Wilayah</th><th class="px-4 py-3 font-semibold">Status</th><th class="px-4 py-3"></th></tr>
                 </thead>
                 <tbody class="divide-y divide-garis">
@@ -38,7 +38,7 @@
 
         <form method="POST" action="{{ route('admin.users.store') }}" class="panel space-y-4 p-5">
             @csrf
-            <h2 class="text-lg font-bold">Tambah akun</h2>
+            <h2 class="judul-bagian">Tambah akun</h2>
             <div>
                 <label for="role" class="label">Peran</label>
                 <select id="role" name="role" class="input">

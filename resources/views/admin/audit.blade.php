@@ -6,7 +6,7 @@
 
     <div class="panel mt-6 overflow-x-auto">
         <table class="w-full text-left text-sm">
-            <thead class="border-b border-garis text-tinta/60">
+            <thead class="border-b-2 border-garis bg-daun text-tinta/70">
                 <tr><th class="px-4 py-3 font-semibold">Waktu</th><th class="px-4 py-3 font-semibold">Pelaku</th><th class="px-4 py-3 font-semibold">Aksi</th><th class="px-4 py-3 font-semibold">Objek</th><th class="px-4 py-3 font-semibold">Detail</th><th class="px-4 py-3 font-semibold">IP</th></tr>
             </thead>
             <tbody class="divide-y divide-garis">

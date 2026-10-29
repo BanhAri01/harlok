@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('tanpa_jarak_kaki', '1')
+
 @section('content')
 @php
     $waDigits = $waNumber ? preg_replace('/\D/', '', $waNumber) : null;

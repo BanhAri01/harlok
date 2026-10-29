@@ -13,7 +13,7 @@
     <div class="mt-4 grid gap-6 lg:grid-cols-2">
         @foreach (['Masuk' => $inbound, 'Keluar' => $outbound] as $heading => $messages)
             <section class="panel">
-                <h2 class="border-b border-garis px-5 py-3 text-lg font-bold">{{ $heading }}</h2>
+                <h2 class="judul-bagian border-b-2 border-garis px-5 py-3">{{ $heading }}</h2>
                 <ul class="max-h-[40rem] divide-y divide-garis overflow-y-auto">
                     @forelse ($messages as $message)
                         <li class="px-5 py-3 text-sm">

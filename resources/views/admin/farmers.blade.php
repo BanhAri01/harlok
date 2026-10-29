@@ -16,7 +16,7 @@
 
     <div class="panel mt-4 overflow-x-auto">
         <table class="w-full text-left text-sm">
-            <thead class="border-b border-garis text-tinta/60">
+            <thead class="border-b-2 border-garis bg-daun text-tinta/70">
                 <tr><th class="px-4 py-3 font-semibold">Nama</th><th class="px-4 py-3 font-semibold">Nomor</th><th class="px-4 py-3 font-semibold">Wilayah</th><th class="px-4 py-3 font-semibold">Komoditas</th><th class="px-4 py-3 font-semibold">Laporan</th><th class="px-4 py-3 font-semibold">Asal</th><th class="px-4 py-3"></th></tr>
             </thead>
             <tbody class="divide-y divide-garis">

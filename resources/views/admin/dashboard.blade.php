@@ -13,25 +13,25 @@
             'WA terkirim hari ini' => $counts['outbound_today'].' / '.$limit,
             'WA gagal hari ini' => $counts['failed_today'],
         ] as $label => $value)
-            <div class="panel p-4">
-                <dt class="text-sm text-tinta/60">{{ $label }}</dt>
-                <dd class="angka mt-1 text-2xl font-bold">{{ $value }}</dd>
+            <div @class(['rounded-2xl p-4', 'papan-pasar !border-[6px]' => $loop->first, 'border-2 border-garis bg-white' => ! $loop->first])>
+                <dt @class(['text-sm', 'text-kapur/70' => $loop->first, 'text-tinta/60' => ! $loop->first])>{{ $label }}</dt>
+                <dd @class(['mt-1 font-display text-[2.2rem] font-extrabold leading-none', 'text-kuning' => $loop->first, 'text-papan' => ! $loop->first])>{{ $value }}</dd>
             </div>
         @endforeach
     </dl>
 
-    <section class="panel mt-6 p-5">
+    <section class="mt-6 rounded-2xl bg-kuning-muda p-6">
         <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h2 class="text-lg font-bold">Asisten AI, 7 hari terakhir</h2>
-            <span @class(['rounded-full px-2.5 py-0.5 text-xs font-semibold', 'bg-naik/15 text-naik' => $ai['active'], 'bg-tinta/10 text-tinta/60' => ! $ai['active']])>
+            <h2 class="judul-bagian">Asisten AI, 7 hari terakhir</h2>
+            <span @class(['rounded-full px-2.5 py-0.5 text-xs font-semibold', 'bg-papan text-white' => $ai['active'], 'bg-tinta/10 text-tinta/60' => ! $ai['active']])>
                 {{ $ai['active'] ? 'Aktif: '.$ai['provider'] : 'Belum aktif, bot memakai pembaca aturan' }}
             </span>
         </div>
         <dl class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-            <div><dt class="text-sm text-tinta/60">Panggilan AI</dt><dd class="angka mt-1 text-2xl font-bold">{{ number_format($ai['total'], 0, ',', '.') }}</dd></div>
-            <div><dt class="text-sm text-tinta/60">Berhasil</dt><dd class="angka mt-1 text-2xl font-bold">{{ $ai['total'] ? round($ai['ok'] / $ai['total'] * 100).'%' : '–' }}</dd></div>
-            <div><dt class="text-sm text-tinta/60">Ditangani cadangan</dt><dd class="angka mt-1 text-2xl font-bold">{{ number_format($ai['fallback'], 0, ',', '.') }}</dd></div>
-            <div><dt class="text-sm text-tinta/60">Rata-rata waktu jawab</dt><dd class="angka mt-1 text-2xl font-bold">{{ $ai['latency'] ? number_format($ai['latency'] / 1000, 1, ',', '.').' dtk' : '–' }}</dd></div>
+            <div><dt class="text-sm text-tinta/60">Panggilan AI</dt><dd class="mt-1 font-display text-[2rem] font-extrabold leading-none text-papan">{{ number_format($ai['total'], 0, ',', '.') }}</dd></div>
+            <div><dt class="text-sm text-tinta/60">Berhasil</dt><dd class="mt-1 font-display text-[2rem] font-extrabold leading-none text-papan">{{ $ai['total'] ? round($ai['ok'] / $ai['total'] * 100).'%' : '–' }}</dd></div>
+            <div><dt class="text-sm text-tinta/60">Ditangani cadangan</dt><dd class="mt-1 font-display text-[2rem] font-extrabold leading-none text-papan">{{ number_format($ai['fallback'], 0, ',', '.') }}</dd></div>
+            <div><dt class="text-sm text-tinta/60">Rata-rata waktu jawab</dt><dd class="mt-1 font-display text-[2rem] font-extrabold leading-none text-papan">{{ $ai['latency'] ? number_format($ai['latency'] / 1000, 1, ',', '.').' dtk' : '–' }}</dd></div>
         </dl>
         @if ($ai['purposes'])
             <p class="mt-3 text-sm text-tinta/60">
@@ -45,7 +45,7 @@
 
     <div class="mt-8 grid gap-6 lg:grid-cols-2">
         <section class="panel">
-            <h2 class="border-b border-garis px-5 py-3 text-lg font-bold">Laporan janggal ({{ $flagged->count() }})</h2>
+            <h2 class="judul-bagian border-b-2 border-garis px-5 py-3">Laporan janggal ({{ $flagged->count() }})</h2>
             <ul class="divide-y divide-garis">
                 @forelse ($flagged as $report)
                     <li class="px-5 py-4">
@@ -53,7 +53,7 @@
                         <p class="text-sm text-tinta/70">{{ $report->commodity->name }} {{ \App\Support\Rupiah::kg($report->quantity_kg) }}, <strong>{{ \App\Support\Rupiah::format($report->price_per_kg) }}/kg</strong></p>
                         <p class="text-sm text-turun">{{ $report->flag_reason }}</p>
                         @if ($report->ai_note)
-                            <p class="mt-2 rounded-lg bg-tinta/5 px-3 py-2 text-sm"><span class="font-semibold">Penilaian AI, {{ str_replace('_', ' ', $report->ai_verdict) }}:</span> {{ $report->ai_note }}</p>
+                            <p class="mt-2 rounded-xl bg-kuning-muda px-3 py-2 text-sm"><span class="font-semibold">Penilaian AI, {{ str_replace('_', ' ', $report->ai_verdict) }}:</span> {{ $report->ai_note }}</p>
                         @endif
                         <p class="mt-1 text-xs text-tinta/50">Pesan asli "{{ $report->raw_text }}", {{ $report->confirmed_at?->diffForHumans() }}</p>
                         <div class="mt-3 flex gap-2">
@@ -68,7 +68,7 @@
         </section>
 
         <section class="panel">
-            <h2 class="border-b border-garis px-5 py-3 text-lg font-bold">Menunggu verifikasi</h2>
+            <h2 class="judul-bagian border-b-2 border-garis px-5 py-3">Menunggu verifikasi</h2>
             <ul class="divide-y divide-garis">
                 @forelse ($unverified as $farmer)
                     <li class="flex items-center gap-3 px-5 py-3">
@@ -86,7 +86,7 @@
                     <li class="px-5 py-10 text-center text-tinta/60">Semua pelapor WhatsApp sudah terverifikasi.</li>
                 @endforelse
             </ul>
-            <a href="{{ route('admin.farmers', ['status' => 'belum']) }}" class="block border-t border-garis px-5 py-3 text-sm font-semibold text-papan">Lihat semua peternak</a>
+            <a href="{{ route('admin.farmers', ['status' => 'belum']) }}" class="block border-t-2 border-garis px-5 py-3 text-sm font-bold text-papan hover:bg-daun">Lihat semua peternak</a>
         </section>
     </div>
 </div>
