@@ -55,7 +55,7 @@
                         <form x-show="!selected.my_offer" @submit.prevent="sendOffer()" class="mt-4 grid grid-cols-2 gap-3">
                             <div>
                                 <label for="offer-price" class="label">Harga/kg</label>
-                                <input id="offer-price" type="number" min="1" step="50" x-model.number="offer.price" class="input angka" required>
+                                <input id="offer-price" type="number" min="1" step="1" inputmode="numeric" x-model.number="offer.price" class="input angka" required>
                             </div>
                             <div>
                                 <label for="offer-qty" class="label">Jumlah (kg)</label>
