@@ -37,6 +37,8 @@
         <env name="FONNTE_DEVICE" value=""/>
         <env name="LAPOR_START_KEYWORD" value=""/>
         <env name="ANTHROPIC_API_KEY" value=""/>
+        <env name="LAPOR_AI_KEY" value=""/>
+        <env name="LAPOR_AI_DRIVER" value="anthropic"/>
         <env name="LAPOR_SIMULATOR" value="true"/>
     </php>
 </phpunit>

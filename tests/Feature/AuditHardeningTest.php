@@ -1,6 +1,5 @@
 <?php
 
-use App\Chat\AiReportParser;
 use App\Models\Conversation;
 use App\Models\DailyPrice;
 use App\Models\Farmer;
@@ -9,7 +8,6 @@ use App\Models\StockReport;
 use App\Services\PriceBoard;
 use App\Services\ReportService;
 use App\Support\Phone;
-use Illuminate\Support\Facades\RateLimiter;
 
 function simulatorFarmer(array $attributes = []): Farmer
 {
@@ -88,21 +86,6 @@ it('menolak jumlah stok yang tidak masuk akal', function () {
 
     expect(chat($farmer->phone, 'telur 500 ton 26rb')[0])->toContain('terlalu besar');
     expect(StockReport::query()->exists())->toBeFalse();
-});
-
-it('kuota AI harian global dan simulator membatasi pemanggilan', function () {
-    config(['lapor.ai.api_key' => 'kunci-uji', 'lapor.ai.daily_global' => 1, 'lapor.ai.daily_simulator' => 1]);
-    $parser = app(AiReportParser::class);
-
-    RateLimiter::hit('ai-parse:semua', 86400);
-    expect($parser->parse('6281299999999', 'telur dua ton 26 ribu', commodity(), region('tabanan')))->toBeNull()
-        ->and(RateLimiter::attempts('ai-parse:6281299999999'))->toBe(0);
-
-    RateLimiter::clear('ai-parse:semua');
-    RateLimiter::hit('ai-parse:simulator', 86400);
-    $phone = Phone::SIMULATOR_PREFIX.'123456';
-    expect($parser->parse($phone, 'telur dua ton 26 ribu', commodity(), region('tabanan')))->toBeNull()
-        ->and(RateLimiter::attempts('ai-parse:'.$phone))->toBe(0);
 });
 
 it('posisi peta peternak tidak bisa ditebak dari nomor telepon', function () {

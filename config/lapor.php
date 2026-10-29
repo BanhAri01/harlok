@@ -13,8 +13,11 @@ return [
     ],
 
     'ai' => [
-        'api_key' => env('ANTHROPIC_API_KEY'),
-        'model' => env('LAPOR_AI_MODEL', 'claude-haiku-5-5'),
+        'driver' => env('LAPOR_AI_DRIVER') ?: 'anthropic',
+        'api_key' => env('LAPOR_AI_KEY') ?: env('ANTHROPIC_API_KEY'),
+        'base_url' => env('LAPOR_AI_BASE_URL') ?: 'https://api.deepseek.com',
+        'model' => env('LAPOR_AI_MODEL'),
+        'models' => ['anthropic' => 'claude-haiku-5-5', 'openai' => 'deepseek-chat'],
         'timeout' => 20,
         'daily_per_phone' => 30,
         'daily_simulator' => (int) env('LAPOR_AI_DAILY_SIMULATOR', 60),

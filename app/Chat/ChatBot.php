@@ -40,7 +40,7 @@ class ChatBot
 
     public function __construct(
         private ReportParser $parser,
-        private AiReportParser $ai,
+        private AiAssistant $assistant,
         private ReportService $reports,
         private OfferService $offers,
         private PriceBoard $prices,
@@ -172,27 +172,82 @@ class ChatBot
         $word = strtok($command, ' ');
 
         return match (true) {
-            $word === 'harga' => [$this->priceSummary($farmer, $command)],
+            $word === 'harga' => [$this->priceSummary($farmer, $this->parser->findCommodity($command))],
             in_array($command, ['stok', 'stokku', 'stok saya'], true) => [$this->myStock($farmer)],
             in_array($word, ['habis', 'terjual', 'laku'], true) => [$this->closeStock($farmer)],
             $word === 'tawaran' => $this->listOffers($conversation, $farmer),
             in_array($command, ['mulai', 'langganan'], true) => [$this->digest($farmer, true)],
             in_array($command, ['1', '2', '3'], true) => ['Saat ini tidak ada tawaran yang menunggu jawaban. Ketik *TAWARAN* untuk melihat daftar tawaran.'],
-            default => $this->report($conversation, $farmer, $text),
+            default => $this->assist($conversation, $farmer, $text),
         };
     }
 
-    private function report(Conversation $conversation, Farmer $farmer, string $text): array
+    private function assist(Conversation $conversation, Farmer $farmer, string $text): array
     {
-        $parsed = $this->parser->parse($text, $farmer->commodity, $farmer->region);
+        $understood = $this->assistant->understand($farmer, $text);
 
-        if (! $parsed->isComplete()) {
-            $aiParsed = $this->ai->parse($farmer->phone, $text, $farmer->commodity, $farmer->region);
-            if ($aiParsed) {
-                $parsed = $aiParsed->isComplete() ? $aiParsed : $parsed->fillFrom($aiParsed);
-            }
+        if (! $understood) {
+            return $this->report($conversation, $farmer, $text, $this->parser->parse($text, $farmer->commodity, $farmer->region));
         }
 
+        $commodity = Commodity::active()->firstWhere('slug', $understood['commodity']);
+
+        return match ($understood['intent']) {
+            'lapor_stok' => $this->report($conversation, $farmer, $text, $this->aiReport($understood, $farmer, $text)),
+            'cek_harga' => [$this->priceSummary($farmer, $commodity)],
+            'stok_saya' => [$this->myStock($farmer)],
+            'stok_habis' => [$this->closeStock($farmer)],
+            'lihat_tawaran' => $this->listOffers($conversation, $farmer),
+            'terima_tawaran', 'tolak_tawaran', 'tawar_balik' => $this->assistOffer($conversation, $farmer, $understood),
+            'langganan' => [$this->digest($farmer, true)],
+            'bantuan' => [$this->help($farmer)],
+            'pertanyaan' => [$understood['answer']
+                ? '🤖 '.$understood['answer'].'
+
+_Dijawab AI dari data laporan Harlok. Cek kembali sebelum memutuskan._'
+                : $this->help($farmer)],
+            default => $this->report($conversation, $farmer, $text, $this->parser->parse($text, $farmer->commodity, $farmer->region)),
+        };
+    }
+
+    private function aiReport(array $understood, Farmer $farmer, string $text): ParsedReport
+    {
+        $parsed = $this->assistant->toReport($understood, $farmer->commodity, $farmer->region);
+
+        return $parsed->isComplete() ? $parsed : $this->parser->parse($text, $farmer->commodity, $farmer->region)->fillFrom($parsed);
+    }
+
+    private function assistOffer(Conversation $conversation, Farmer $farmer, array $understood): array
+    {
+        $offer = $this->openOffer($farmer, (int) $conversation->get('offer_id'))
+            ?? Offer::query()->where('status', Offer::SENT)
+                ->whereHas('report', fn ($query) => $query->where('farmer_id', $farmer->id)->where('status', StockReport::CONFIRMED))
+                ->latest('id')->first();
+
+        if (! $offer) {
+            return ['Belum ada tawaran yang menunggu jawaban.'];
+        }
+
+        if ($understood['intent'] === 'tawar_balik' && is_numeric($understood['price']) && $understood['price'] > 0) {
+            $conversation->moveTo(self::COUNTER_PRICE, ['offer_id' => $offer->id], 60);
+
+            return $this->counterPrice($conversation, $farmer, (string) (int) $understood['price']);
+        }
+
+        $conversation->moveTo(OfferService::STATE_REPLY, ['offer_id' => $offer->id], 60 * 24);
+        $hint = match ($understood['intent']) {
+            'terima_tawaran' => 'Untuk menerima, balas *1*.',
+            'tolak_tawaran' => 'Untuk menolak, balas *2*.',
+            default => 'Untuk menawar balik, balas *3*.',
+        };
+
+        return ["Maksud Anda tawaran ini? {$hint}
+
+".$this->offers->offerMessage($offer->load('report.commodity', 'report.region', 'buyer'))];
+    }
+
+    private function report(Conversation $conversation, Farmer $farmer, string $text, ParsedReport $parsed): array
+    {
         if (! $parsed->hasAnything()) {
             return ["Maaf, pesan belum saya pahami 🙏\n\nUntuk lapor stok ketik seperti:\n_".$this->example($farmer->commodity)."_\n\nAtau ketik *MENU*."];
         }
@@ -372,9 +427,9 @@ class ChatBot
             ->find($offerId);
     }
 
-    private function priceSummary(Farmer $farmer, string $command): string
+    private function priceSummary(Farmer $farmer, ?Commodity $commodity): string
     {
-        $commodity = $this->parser->findCommodity($command) ?? $farmer->commodity ?? Commodity::active()->first();
+        $commodity ??= $farmer->commodity ?? Commodity::active()->first();
         $rows = $this->prices->regionSummary($commodity);
 
         if ($rows->isEmpty()) {
